@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Trip Planner — AI-Powered or Curated</title>
+<style>
+  :root { --indigo: #1a2a6c; --indigo-soft: #2b3f8f; --crimson: #b21f1f; --crimson-soft: #e63946; --gold: #c9a227; --paper: #f7f4ec; --ink: #20232a; --muted: #5b606b; --line: #e2dccb; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--paper); color: var(--ink); line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .container { max-width: 880px; margin: 0 auto; padding: 24px 16px 80px; }
+  header {
+    background: linear-gradient(135deg, var(--indigo) 0%, var(--indigo-soft) 55%, var(--crimson) 140%);
+    color: #fff; padding: 40px 20px; text-align: center; border-radius: 16px; margin-bottom: 24px;
+    position: relative; overflow: hidden;
+  }
+  header::after { content: "✈"; position: absolute; right: 10px; bottom: -10px; font-size: 160px; font-weight: 800; color: rgba(255,255,255,0.05); }
+  header h1 { font-size: 36px; letter-spacing: 1px; margin-bottom: 6px; position: relative; z-index: 1; }
+  header .sub { font-size: 15px; opacity: 0.9; position: relative; z-index: 1; }
+  .header-badge {
+    display: inline-block; margin-top: 12px; padding: 4px 14px;
+    border-radius: 999px; font-size: 12px; font-weight: 600;
+    position: relative; z-index: 1;
+  }
+  .badge-ai { background: rgba(201,162,39,0.25); color: #ffd966; border: 1px solid rgba(201,162,39,0.4); }
+  .badge-local { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); }
+  .section {
+    background: #fff; border: 1px solid var(--line); border-radius: 12px;
+    padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  }
+  .section h2 { font-size: 20px; color: var(--indigo); margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid var(--gold); display: inline-block; }
+  .form-row { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 12px; align-items: flex-end; }
+  .form-group { flex: 1; min-width: 140px; }
+  .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%; padding: 10px 12px; border: 1px solid #d4c9b8; border-radius: 8px;
+    font-size: 15px; background: #fff; color: var(--ink);
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    outline: none; border-color: var(--indigo); box-shadow: 0 0 0 3px rgba(26,42,108,0.15);
+  }
+  .form-group textarea { font-family: inherit; }
+  .dest-row {
+    display: grid; grid-template-columns: 1fr 150px 150px 40px; gap: 10px;
+    padding: 12px; background: #faf9f5; border: 1px solid var(--line); border-radius: 8px;
+    margin-bottom: 10px; align-items: end;
+  }
+  .dest-row.header { background: var(--indigo); color: #fff; font-weight: 600; font-size: 13px; padding: 10px 12px; }
+  .dest-row .form-group { min-width: 0; }
+  .btn-icon { background: none; border: none; cursor: pointer; font-size: 18px; color: var(--crimson); padding: 4px 8px; }
+  .btn-icon:hover { color: #8b1515; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 14px 28px; border: none; border-radius: 999px; font-size: 16px; font-weight: 700;
+    cursor: pointer; transition: transform 0.15s, box-shadow 0.2s;
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn-primary { background: var(--indigo); color: #fff; box-shadow: 0 4px 14px rgba(26,42,108,0.3); }
+  .btn-primary:hover { box-shadow: 0 6px 20px rgba(26,42,108,0.4); }
+  .btn-secondary { background: var(--gold); color: #fff; box-shadow: 0 4px 14px rgba(201,162,39,0.3); }
+  .btn-ghost { background: transparent; color: var(--indigo); border: 1px solid var(--indigo); }
+  .actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+  #output { display: none; }
+  #output.visible { display: block; animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .spinner {
+    display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3);
+    border-radius: 50%; border-top-color: #fff; animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .iti-hdr {
+    background: linear-gradient(135deg, var(--indigo) 0%, var(--indigo-soft) 55%, var(--crimson) 140%);
+    color: #fff; padding: 48px 20px 40px; text-align: center; border-radius: 16px; margin-bottom: 24px;
+    position: relative; overflow: hidden;
+  }
+  .iti-hdr::after { content: "✈"; position: absolute; right: 10px; bottom: -10px; font-size: 160px; font-weight: 800; color: rgba(255,255,255,0.05); }
+  .iti-hdr h1 { font-size: 36px; margin-bottom: 6px; position: relative; z-index: 1; }
+  .iti-hdr .sub { font-size: 15px; opacity: 0.92; position: relative; z-index: 1; }
+  .iti-hdr .dates { display: inline-block; margin-top: 14px; padding: 10px 22px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.3); border-radius: 999px; font-size: 14px; position: relative; z-index: 1; }
+  .iti-route { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 20px 0 8px; font-size: 14px; }
+  .iti-route .stop { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 8px 14px; font-weight: 600; color: var(--indigo); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .iti-route .arrow { align-self: center; color: var(--crimson-soft); font-weight: 700; }
+  .iti-glance { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-top: 10px; }
+  .iti-glance .card { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 14px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
+  .iti-glance .card .big { font-size: 22px; font-weight: 800; color: var(--indigo); }
+  .iti-glance .card .lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .iti-h2 { font-size: 24px; color: var(--indigo); margin: 40px 0 16px; padding-bottom: 6px; border-bottom: 3px solid var(--gold); display: inline-block; }
+  .iti-day { display: grid; grid-template-columns: 110px 1fr; background: #fff; border: 1px solid var(--line); border-radius: 12px; margin-bottom: 12px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
+  .iti-day .when { background: var(--indigo); color: #fff; padding: 16px 12px; display: flex; flex-direction: column; justify-content: center; text-align: center; }
+  .iti-day .when .d { font-size: 20px; font-weight: 800; }
+  .iti-day .when .mo { font-size: 12px; opacity: 0.85; text-transform: uppercase; }
+  .iti-day .when .wd { font-size: 11px; opacity: 0.7; margin-top: 2px; }
+  .iti-day.travel .when { background: var(--crimson); }
+  .iti-day .body { padding: 14px 18px; }
+  .iti-day .body .city { font-size: 16px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .iti-day .body .city .tag { font-size: 10px; font-weight: 700; color: #fff; background: var(--crimson-soft); padding: 2px 7px; border-radius: 999px; margin-left: 6px; vertical-align: middle; }
+  .iti-day .body .detail-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; font-size: 14px; color: var(--muted); }
+  .iti-day .body .detail-row > div { flex: 1; min-width: 160px; }
+  .iti-day .body .detail-row label { font-weight: 700; color: var(--indigo); margin-right: 6px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .iti-table { width: 100%; border-collapse: collapse; margin-top: 12px; background: #fff; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; font-size: 14px; }
+  .iti-table th, .iti-table td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+  .iti-table th { background: var(--indigo); color: #fff; font-weight: 600; }
+  .iti-table tr:last-child td { border-bottom: none; }
+  .iti-table td.seg { font-weight: 700; color: var(--indigo); }
+  .iti-tips { columns: 2; column-gap: 24px; margin-top: 10px; }
+  .iti-tips .tip { break-inside: avoid; background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--gold); border-radius: 8px; padding: 10px 14px; margin-bottom: 12px; font-size: 14px; }
+  .iti-actions { display: flex; gap: 12px; justify-content: center; margin-top: 32px; flex-wrap: wrap; }
+  .iti-footer { text-align: center; color: var(--muted); font-size: 13px; margin-top: 40px; }
+
+  .budget-section { margin-top: 20px; }
+  .budget-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+  .budget-item { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 14px; text-align: center; }
+  .budget-item .amount { font-size: 18px; font-weight: 800; color: var(--indigo); }
+  .budget-item .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  @media (max-width: 680px) {
+    .dest-row { grid-template-columns: 1fr; }
+    .dest-row.header { display: none; }
+    .dest-row label { display: inline-block; font-weight: 600; color: var(--muted); font-size: 12px; margin-right: 8px; }
+    .iti-tips { columns: 1; }
+    .iti-day { grid-template-columns: 80px 1fr; }
+    .iti-hdr h1 { font-size: 30px; }
+  }
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--indigo); color: #fff; padding: 14px 20px; border-radius: 10px; box-shadow: 0 6px 20px rgba(0,0,0,0.2); z-index: 1000; animation: slideIn 0.3s ease; }
+  @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  .toast.success { background: #2d7d32; }
+  .toast.error { background: var(--crimson-soft); }
+  .loading-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1001; backdrop-filter: blur(4px);
+  }
+  .loading-card {
+    background: #fff; border-radius: 16px; padding: 40px; text-align: center;
+    max-width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+  .loading-card .big-spinner {
+    width: 48px; height: 48px; border: 4px solid #e2dccb;
+    border-radius: 50%; border-top-color: var(--indigo);
+    animation: spin 0.8s linear infinite; margin: 0 auto 16px;
+  }
+  .loading-card h3 { color: var(--indigo); margin-bottom: 8px; }
+  .loading-card p { color: var(--muted); font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>🗺 Trip Planner</h1>
+    <div class="sub">Enter destinations & dates — get a full itinerary with activities, food, and tips</div>
+    <span class="header-badge" id="modeBadge">⚡ Checking mode...</span>
+  </header>
+
+  <div class="section">
+    <h2>✈️ Trip Basics</h2>
+    <div class="form-row">
+      <div class="form-group" style="flex:2">
+        <label>Trip Title</label>
+        <input type="text" id="tripTitle" value="Japan Autumn Adventure" placeholder="e.g., Japan Autumn Adventure">
+      </div>
+      <div class="form-group">
+        <label>Home Airport / City</label>
+        <input type="text" id="homeAirport" value="SFO" placeholder="SFO, LAX, JFK...">
+      </div>
+      <div class="form-group" style="max-width:200px;">
+        <label>Outbound Date (leave home)</label>
+        <input type="date" id="outboundDate" value="2026-11-13">
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>📍 Destinations</h2>
+    <p style="color:var(--muted);font-size:14px;margin-bottom:12px;">
+      Add each city/town you're visiting. The last destination's <b>Depart</b> date is your return home.
+    </p>
+    <div class="dest-row header">
+      <div>City / Destination</div><div>Arrive</div><div>Depart</div><div></div>
+    </div>
+    <div id="destsContainer"></div>
+    <div class="actions">
+      <button class="btn btn-secondary" onclick="addDest()">+ Add Destination</button>
+      <button class="btn btn-ghost" onclick="loadPreset()">Load Example (Japan)</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>🧠 Interests & Extra Notes</h2>
+    <div class="form-group" style="margin-bottom:8px;">
+      <label>Your Interests</label>
+      <input type="text" id="interests" value="nature, food, culture, shopping, onsens, autumn leaves" placeholder="e.g., nature, food, history, hiking">
+    </div>
+    <div class="form-group">
+      <label>Extra Notes (one per line)</label>
+      <textarea id="extraTips" rows="3" placeholder="e.g., Book ryokan early&#10;Check ferry schedules" style="font-family:inherit;width:100%;"></textarea>
+    </div>
+  </div>
+
+  <div class="actions" style="justify-content:center;margin-top:8px;">
+    <button class="btn btn-primary" onclick="generate()" style="padding:16px 40px;font-size:18px;" id="genBtn">
+      ✨ Generate Itinerary
+    </button>
+  </div>
+
+  <div id="output"></div>
+</div>
+
+<script>
+// ============================================================
+// CURATED CITY DATABASE
+const CURATED = {
+  "Tokyo": {
+    activities: "Senso-ji Temple • Shibuya Crossing • Meiji Shrine • teamLab Planets • Akihabara • Tsukiji Outer Market • Shinjuku night views • Harajuku • Odaiba",
+    food: "Ramen • Sushi • Tempura • Yakitori • Street snacks • Matcha sweets • Izakaya • Depachika bento",
+    places: "Asakusa • Shibuya • Harajuku • Shinjuku • Akihabara • Ginza • Odaiba • Ueno Park • Roppongi Hills",
+    accommodation: "Hotel near Shinjuku or Shibuya station",
+    tips: ["Get a Suica/PASMO IC card — add to Apple Wallet.", "teamLab Planets & Ghibli Museum require 1–3 month advance booking.", "Tsukiji Outer Market best 8–10am.", "Shinjuku Golden Gai for night izakaya.", "Tokyo Station Ichiban-gai for regional souvenirs."]
+  },
+  "Fukuoka": {
+    activities: "Dazaifu Tenmangu • Kyushu National Museum • Ohori Park • Canal City • Nakasu yatai stalls • Kushida Shrine",
+    food: "Hakata tonkotsu ramen • Mentaiko • Motsunabe • Yatai street food",
+    places: "Hakata Station • Nakasu • Dazaifu • Canal City • Ohori Park",
+    accommodation: "Hotel near Hakata Station",
+    tips: ["Yatai stalls open ~6pm along Nakasu river.", "Ainoshima (Cat Island) is 1hr train + 20min ferry from Fukuoka.", "Try Ichiran or Ippudo for tonkotsu ramen."]
+  },
+  "Ainoshima": {
+    activities: "Ferry ride • Cat island stroll • Beach walk • Coastal loop hike • Small shrine visit",
+    food: "Bring onigiri & bento — no shops on island, pack water too",
+    places: "Ainoshima Island • Onta Port (Fukutsu)",
+    accommodation: "Return to Fukuoka hotel",
+    tips: ["Ferries run 2–3x daily — check Onta Port tide schedule.", "No shops — bring food, water, cash.", "Last return ferry ~4pm."]
+  },
+  "Osaka": {
+    activities: "Osaka Castle • Umeda Sky Building • Dotonbori • Kuromon Market • Shinsekai • Universal Studios Japan",
+    food: "Takoyaki • Okonomiyaki • Kushikatsu • Osaka-sushi • Kuromon seafood",
+    places: "Dotonbori • Shinsaibashi • Umeda • Shinsekai • Osaka Castle",
+    accommodation: "Hotel near Namba or Umeda",
+    tips: ["Dotonbori best at night — all neon lights.", "Kuromon Market great for breakfast.", "Osaka is 30min from Kyoto — easy day trip.", "Universal Express Pass recommended for Nintendo World."]
+  },
+  "Kyoto": {
+    activities: "Arashiyama Bamboo Grove • Tenryu-ji • Togetsukyo Bridge • Fushimi Inari Taisha • Kinkaku-ji • Gion • Nishiki Market",
+    food: "Yudofu • Matcha sweets • Kyo-kaiseki • Green tea parfait",
+    places: "Arashiyama • Fushimi Inari • Kinkaku-ji • Gion • Nishiki Market • Philosopher's Path",
+    accommodation: "Hotel near Kyoto Station or Gion",
+    tips: ["Arashiyama Bamboo Grove best before 9am.", "Fushimi Inari gorgeous at golden hour.", "Nishiki Market is Kyoto's 'kitchen'.", "Consider 1-day Kyoto bus pass."]
+  },
+  "Hakone": {
+    activities: "Hakone Ropeway • Owakudani (black eggs) • Lake Ashi pirate ship cruise • Open-Air Museum • Onsen & ryokan",
+    food: "Kaiseki dinner • Onsen tamago • Black egg • Soba noodles",
+    places: "Hakone Ropeway • Owakudani • Lake Ashi • Open-Air Museum",
+    accommodation: "Traditional ryokan with private onsen",
+    tips: ["Book ryokan with kashikiri (private onsen) — tattoo-friendly.", "Hakone Free Pass (~¥6,100/3 days) covers ropeway, ship, bus.", "Mt Fuji visible mornings — do ropeway early.", "Try black eggs at Owakudani."]
+  },
+  "Paris": {
+    activities: "Eiffel Tower • Louvre Museum • Musée d'Orsay • Notre-Dame • Sacré-Cœur • Montmartre • Seine cruise • Versailles day trip",
+    food: "Croissant • Baguette • Macarons • Steak frites • Onion soup • Crème brûlée • Cheese & wine",
+    places: "Eiffel Tower • Louvre • Montmartre • Le Marais • Latin Quarter • Champs-Élysées",
+    accommodation: "Hotel near Le Marais or Saint-Germain",
+    tips: ["Book Louvre & Eiffel Tower tickets 2+ weeks ahead.", "Montmartre best in early morning.", "Seine cruise at sunset is a must.", "Versailles deserves a full day — avoid weekends.", "Learn 'Bonjour' and 'Merci'!"]
+  },
+  "London": {
+    activities: "British Museum • Tower of London • Buckingham Palace • London Eye • Tower Bridge • Westminster Abbey • Natural History Museum • Camden Market",
+    food: "Full English breakfast • Fish & chips • Sunday roast • Afternoon tea • Pie & mash • Borough Market street food",
+    places: "Westminster • South Bank • Covent Garden • Camden • Greenwich • Kensington • Notting Hill",
+    accommodation: "Hotel near South Kensington or Covent Garden",
+    tips: ["Most major museums (British Museum, Natural History) are FREE.", "Get an Oyster Card or use contactless.", "Borough Market is a food paradise.", "Afternoon tea at Fortnum & Mason is classic London."]
+  },
+  "Rome": {
+    activities: "Colosseum & Forum • Vatican Museums & Sistine Chapel • Trevi Fountain • Pantheon • Spanish Steps • Trastevere • Borghese Gallery",
+    food: "Carbonara • Cacio e pepe • Pizza al taglio • Gelato • Supplì • Tiramisù",
+    places: "Colosseum • Vatican City • Trevi Fountain • Pantheon • Trastevere • Piazza Navona",
+    accommodation: "Hotel near Termini or Trastevere",
+    tips: ["Book Colosseum & Vatican tickets 2–4 weeks ahead.", "Trevi Fountain best at sunrise.", "Trastevere for authentic Roman dinner.", "Avoid restaurants next to major attractions — walk 2 blocks."]
+  },
+  "Florence": {
+    activities: "Duomo • Uffizi Gallery • Ponte Vecchio • Michelangelo viewpoint • Accademia (David) • Boboli Gardens • Chianti day trip",
+    food: "Bistecca alla Fiorentina • Pappa al pomodoro • Ribollita • Gelato • Cantucci & Vin Santo",
+    places: "Duomo • Uffizi • Ponte Vecchio • Piazzale Michelangelo • San Lorenzo Market",
+    accommodation: "Hotel near Santa Maria Novella or Duomo",
+    tips: ["Climb Duomo dome at opening (463 steps).", "Uffizi needs 2+ week advance booking.", "Michelangelo viewpoint at sunset = best photo.", "Day trip to Fiesole for hilltop escape."]
+  },
+  "Venice": {
+    activities: "St. Mark's Square & Basilica • Doge's Palace • Grand Canal gondola ride • Rialto Bridge • Murano & Burano islands",
+    food: "Cicchetti (Venetian tapas) • Seafood risotto • Sarde in saor • Fritto misto",
+    places: "St. Mark's Square • Rialto Bridge • Grand Canal • Burano • Murano • Dorsoduro",
+    accommodation: "Hotel near Rialto or San Marco",
+    tips: ["Getting lost is the best way to explore Venice.", "Burano is worth the 40min vaporetto ride.", "Gondola rides ~€80 — do at sunset.", "Get a vaporetto pass for unlimited water bus."]
+  },
+  "Milan": {
+    activities: "Duomo di Milano • Last Supper • Galleria Vittorio Emanuele II • Sforza Castle • Navigli canals • La Scala",
+    food: "Risotto alla Milanese • Osso buco • Cotoletta • Panettone • Aperitivo",
+    places: "Duomo • Galleria • Sforza Castle • Navigli • Brera • Santa Maria delle Grazie",
+    accommodation: "Hotel near Duomo or Brera",
+    tips: ["Book Last Supper tickets 2–3 months ahead.", "Duomo rooftop is worth the climb.", "Navigli for aperitivo at 6pm.", "Day trip to Lake Como (1hr train)."]
+  },
+  "Beijing": {
+    activities: "Great Wall (Mutianyu) • Forbidden City • Temple of Heaven • Summer Palace • Hutongs rickshaw tour",
+    food: "Peking duck • Zhajiangmian • Dumplings • Hot pot • Jianbing • Street skewers",
+    places: "Great Wall • Forbidden City • Temple of Heaven • Summer Palace • Nanluoguxiang",
+    accommodation: "Hotel near Wangfujing or Dongzhimen",
+    tips: ["Book Great Wall tours early — Mutianyu less crowded.", "Forbidden City: book 1–2 weeks ahead.", "Download VPN BEFORE you travel.", "Alipay/WeChat Pay dominant — set up early.", "Peking duck at Da Dong or Siji Minfu."]
+  },
+  "Shanghai": {
+    activities: "The Bund • Yu Garden • Shanghai Tower • Huangpu River cruise • French Concession walk • Disneyland Shanghai",
+    food: "Xiaolongbao (soup dumplings) • Shengjianbao • Braised pork belly • Hairy crab",
+    places: "The Bund • Yu Garden • Shanghai Tower • French Concession • Nanjing Road",
+    accommodation: "Hotel near The Bund or People's Square",
+    tips: ["The Bund beautiful at night.", "Nanxiang Steamed Bun for best xiaolongbao.", "Shanghai Metro is excellent.", "VPN highly recommended.", "Zhujiajiao water town peaceful day trip."]
+  },
+  "Hong Kong": {
+    activities: "Victoria Peak • Star Ferry • Tian Tan Buddha • Temple Street Night Market • Disneyland HK • Lantau Island cable car",
+    food: "Dim sum • Roast goose • Egg waffles • Milk tea • Wonton noodles",
+    places: "Victoria Peak • Tsim Sha Tsui • Central • Mong Kok • Lantau Island",
+    accommodation: "Hotel in Tsim Sha Tsui or Central",
+    tips: ["Victoria Peak at sunset — book tram online.", "Star Ferry is cheap & scenic.", "Temple Street Night Market for souvenirs.", "Get Octopus Card.", "Dim sum at Tim Ho Wan (Michelin star, affordable)."]
+  },
+  "Warsaw": {
+    activities: "Old Town • Royal Castle • Wilanów Palace • Łazienki Park • POLIN Museum • Palace of Culture • Vistula walk",
+    food: "Pierogi • Żurek • Bigos • Zapiekanka • Paczki • Polish vodka",
+    places: "Old Town • Łazienki Park • Wilanów • Praga district • Nowy Świat Street",
+    accommodation: "Hotel near Old Town or Śródmieście",
+    tips: ["Old Town is UNESCO — take free walking tour.", "Łazienki Park has free Chopin concerts (summer Sun).", "Milk bars (Bar Mleczny) serve cheap authentic Polish food.", "Vodka tasting in Praga district."]
+  },
+  "Krakow": {
+    activities: "Wawel Castle • Main Square • St. Mary's Basilica • Kazimierz Jewish Quarter • Wieliczka Salt Mine • Auschwitz day trip",
+    food: "Pierogi • Obwarzanek • Kielbasa • Zapiekanka • Polish cheesecake • Craft beer",
+    places: "Wawel Castle • Main Square • Kazimierz • Planty Park • Wieliczka",
+    accommodation: "Hotel near Old Town or Kazimierz",
+    tips: ["Wieliczka & Auschwitz need advance booking — separate days.", "Kazimierz has best restaurants & nightlife.", "Eat zapiekanka from Okrąglak.", "Day trip to Zakopane (2h bus) for Tatra views."]
+  }
+};
+
+function genericFallback(city) {
+  return {
+    activities: `Explore ${city} • Visit historic districts • Local markets • Walking tour • Cultural landmarks`,
+    food: `Local cuisine • Street food • Regional specialties • Cafe culture • Market dining`,
+    places: `${city} city center • Main attractions • Local neighborhoods • Parks & gardens`,
+    accommodation: `Hotel near ${city} city center`,
+    tips: [`Research ${city}'s public transport options.`, `Learn a few local phrases.`, `Try the local street food!`, `Download offline maps.`]
+  };
+}
+
+const CITY_TRANSPORT = {
+  "Tokyo->Fukuoka": { mode: "Shinkansen Nozomi", duration: "~5h", notes: "Reserve via SmartEX app" },
+  "Tokyo->Osaka": { mode: "Shinkansen Nozomi", duration: "~2.5h", notes: "Frequent departures" },
+  "Tokyo->Hakone": { mode: "Shinkansen + Tozan", duration: "~1.5h", notes: "To Odawara, then Tozan" },
+  "Fukuoka->Osaka": { mode: "Shinkansen Nozomi", duration: "~2.5h", notes: "Via Hiroshima" },
+  "Osaka->Tokyo": { mode: "Shinkansen Nozomi", duration: "~2.5h", notes: "Frequent departures" },
+  "Osaka->Hakone": { mode: "Shinkansen Nozomi", duration: "~2.5h", notes: "To Odawara" },
+  "Osaka->Kyoto": { mode: "JR Special Rapid", duration: "~30min", notes: "Cheap & frequent" },
+  "Hakone->Tokyo": { mode: "Shinkansen", duration: "~1.5h", notes: "From Odawara" },
+  "Beijing->Shanghai": { mode: "High-speed train", duration: "~4.5h", notes: "G-trains, frequent" },
+  "Shanghai->Hong Kong": { mode: "Flight or HSR", duration: "~2.5h flight / 8h train", notes: "Flight faster" },
+  "Rome->Florence": { mode: "Frecciarossa/Italo", duration: "~1.5h", notes: "Book ahead" },
+  "Florence->Venice": { mode: "Frecciarossa", duration: "~2h", notes: "Scenic ride" },
+  "Venice->Milan": { mode: "Frecciarossa", duration: "~2.5h", notes: "Direct" },
+  "Rome->Milan": { mode: "Frecciarossa", duration: "~3h", notes: "Frequent" },
+  "Paris->London": { mode: "Eurostar", duration: "~2.5h", notes: "City center to city center" },
+  "London->Paris": { mode: "Eurostar", duration: "~2.5h", notes: "From St Pancras" },
+  "Paris->Milan": { mode: "TGV or Flight", duration: "~7h / 1.5h", notes: "TGV through Alps scenic" }
+};
+
+const DEFAULT_TIPS = [
+  "💡 Check visa requirements well in advance.",
+  "📶 Get an eSIM (Airalo/Mobal) for data.",
+  "🌡 Pack layers — compact umbrella always.",
+  "💰 Notify your bank before traveling.",
+  "🏨 Book accommodations 1–3 months ahead.",
+  "🚄 Download offline maps & transit apps.",
+  "💊 Carry a small first-aid kit."
+];
+
+// ============================================================
+let destCounter = 0;
+let useAI = false; // will detect on load
+
+document.addEventListener('DOMContentLoaded', async () => {
+  // Check if AI backend is available
+  try {
+    const resp = await fetch('/api/health');
+    if (resp.ok) {
+      useAI = true;
+      document.getElementById('modeBadge').innerHTML = '🧠 AI-Powered mode (OpenRouter)';
+      document.getElementById('modeBadge').className = 'header-badge badge-ai';
+    } else {
+      throw new Error('not ok');
+    }
+  } catch (e) {
+    useAI = false;
+    document.getElementById('modeBadge').innerHTML = '📖 Curated database mode (offline)';
+    document.getElementById('modeBadge').className = 'header-badge badge-local';
+  }
+  loadPreset();
+});
+
+function getCityData(city) {
+  if (CURATED[city]) return CURATED[city];
+  const lower = Object.keys(CURATED).find(k => k.toLowerCase() === city.toLowerCase());
+  return lower ? CURATED[lower] : null;
+}
+
+function addDest(city = "", arrive = "", depart = "") {
+  const id = destCounter++;
+  const container = document.getElementById('destsContainer');
+  const row = document.createElement('div');
+  row.className = 'dest-row'; row.dataset.id = id;
+  row.innerHTML = `
+    <div><label>City / Destination</label><input type="text" class="dest-name" value="${city}" placeholder="e.g., Tokyo, Rome, Paris"></div>
+    <div><label>Arrive</label><input type="date" class="dest-arrive" value="${arrive}"></div>
+    <div><label>Depart</label><input type="date" class="dest-depart" value="${depart}"></div>
+    <div><button class="btn-icon" onclick="removeDest(${id})">🗑</button></div>
+  `;
+  container.appendChild(row);
+}
+
+function removeDest(id) {
+  const row = document.querySelector(`.dest-row[data-id="${id}"]`);
+  if (row) row.remove();
+}
+
+function loadPreset() {
+  document.getElementById('destsContainer').innerHTML = '';
+  destCounter = 0;
+  addDest("Tokyo", "2026-11-14", "2026-11-15");
+  addDest("Fukuoka", "2026-11-15", "2026-11-18");
+  addDest("Osaka", "2026-11-18", "2026-11-21");
+  addDest("Hakone", "2026-11-21", "2026-11-23");
+  addDest("Tokyo", "2026-11-23", "2026-11-27");
+}
+
+function validate() {
+  const inputs = document.querySelectorAll('.dest-name');
+  const arrives = document.querySelectorAll('.dest-arrive');
+  const departs = document.querySelectorAll('.dest-depart');
+  for (let i = 0; i < inputs.length; i++) {
+    if (!inputs[i].value.trim()) { showToast(`Destination #${i+1} is empty`, false); return false; }
+    if (!arrives[i].value) { showToast(`Missing arrival for "${inputs[i].value}"`, false); return false; }
+    if (!departs[i].value) { showToast(`Missing departure for "${inputs[i].value}"`, false); return false; }
+  }
+  return inputs.length > 0 || (showToast("Add at least one destination", false), false);
+}
+
+// ============================================================
+// GENERATE - tries AI first, falls back to curated
+async function generate() {
+  if (!validate()) return;
+
+  const tripTitle = document.getElementById('tripTitle').value.trim() || "My Trip";
+  const homeAirport = document.getElementById('homeAirport').value.trim() || "Home";
+  const outboundDate = document.getElementById('outboundDate').value;
+  const extraTips = document.getElementById('extraTips').value.trim().split('\n').filter(t => t.trim());
+
+  const destRows = document.querySelectorAll('#destsContainer .dest-row');
+  const dests = [];
+  destRows.forEach(row => {
+    dests.push({
+      city: row.querySelector('.dest-name').value.trim(),
+      arrive: row.querySelector('.dest-arrive').value,
+      depart: row.querySelector('.dest-depart').value
+    });
+  });
+
+  // Show loading
+  const overlay = document.createElement('div');
+  overlay.className = 'loading-overlay';
+  overlay.id = 'loadingOverlay';
+  overlay.innerHTML = `<div class="loading-card">
+    <div class="big-spinner"></div>
+    <h3>🧠 ${useAI ? 'AI is planning your trip...' : 'Building your itinerary...'}</h3>
+    <p>${useAI ? 'Calling OpenRouter for personalized recommendations' : 'Using curated city database'}</p>
+  </div>`;
+  document.body.appendChild(overlay);
+
+  try {
+    if (useAI) {
+      // Build legs array for AI
+      const legs = [];
+      // Outbound travel leg
+      legs.push({ date: outboundDate, location: `Depart ${homeAirport}`, activities: "", food: "", places: "", isTravel: true });
+
+      dests.forEach((dest, idx) => {
+        const arriveDate = dest.arrive;
+        const departDate = dest.depart;
+        const arr = new Date(arriveDate + 'T00:00:00');
+        const dep = new Date(departDate + 'T00:00:00');
+        let nights = Math.round((dep - arr) / (1000 * 60 * 60 * 24));
+        if (nights <= 0) nights = 1;
+
+        for (let n = 0; n < nights; n++) {
+          const d = new Date(arr);
+          d.setDate(d.getDate() + n);
+          const dateStr = d.toISOString().split('T')[0];
+          const isTravel = (n === 0 && idx > 0) || (n === nights - 1 && idx < dests.length - 1);
+          legs.push({
+            date: dateStr,
+            location: dest.city,
+            activities: "",
+            food: "",
+            places: "",
+            isTravel: isTravel
+          });
+        }
+      });
+
+      // Return leg
+      const last = dests[dests.length - 1];
+      if (last?.depart) {
+        legs.push({ date: last.depart, location: `Return to ${homeAirport}`, activities: "", food: "", places: "", isTravel: true });
+      }
+
+      const tripInput = {
+        tripTitle: tripTitle,
+        startDate: outboundDate,
+        endDate: last?.depart || outboundDate,
+        homeAirport: homeAirport,
+        destAirport: "",
+        routeSummary: `${homeAirport} → ${dests.map(d => d.city).join(' → ')} → ${homeAirport}`,
+        legs: legs,
+        transports: [],
+        customTips: extraTips
+      };
+
+      const resp = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(tripInput)
+      });
+
+      if (!resp.ok) {
+        const err = await resp.json();
+        throw new Error(err.error || 'AI generation failed');
+      }
+
+      const aiResult = await resp.json();
+      renderAIResult(aiResult, tripTitle);
+    } else {
+      // Use curated database
+      renderCurated({ tripTitle, homeAirport, outboundDate, dests, extraTips });
+    }
+  } catch (e) {
+    console.error('AI failed, falling back to curated:', e);
+    showToast('AI: ' + e.message + ' — using curated database', false);
+    renderCurated({ tripTitle, homeAirport, outboundDate, dests, extraTips });
+  } finally {
+    const o = document.getElementById('loadingOverlay');
+    if (o) o.remove();
+  }
+}
+
+// ============================================================
+// RENDER AI result
+function renderAIResult(data, tripTitle) {
+  const days = data.days || [];
+  const transports = data.transports || [];
+  const tips = data.tips || [];
+  const budget = data.budgetEstimate || null;
+  const packing = data.packingList || [];
+
+  const firstDate = days[0]?.date;
+  const lastDate = days[days.length - 1]?.date;
+  const uniqueCities = [...new Set(days.map(d => d.location))];
+
+  const fmt = (iso) => {
+    const d = new Date(iso + 'T00:00:00');
+    return { day: d.getDate(), month: d.toLocaleString('en', { month: 'short' }), weekday: d.toLocaleString('en', { weekday: 'short' }) };
+  };
+  const fd2 = (iso) => {
+    const d = new Date(iso + 'T00:00:00');
+    return d.toLocaleString('en', { month: 'short', day: 'numeric', year: 'numeric' });
+  };
+  const esc = (s) => { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; };
+
+  // Also get interests from the form
+  const interests = document.getElementById('interests').value.trim() || 'travel, culture';
+
+  let html = `<div class="iti-hdr">
+    <h1>🗺 ${esc(tripTitle)}</h1>
+    <div class="sub">🧠 AI-generated for your interests: ${esc(interests)}</div>
+    <div class="dates">📅 ${fd2(firstDate)} – ${fd2(lastDate)} &nbsp;·&nbsp; ${days.length} days</div>
+  </div>
+  <div class="iti-route">${uniqueCities.map(s => `<span class="stop">${esc(s)}</span>`).join('<span class="arrow">→</span>')}</div>`;
+
+  // At a glance
+  html += `<h2 class="iti-h2">At a Glance</h2><div class="iti-glance">
+    <div class="card"><div class="big">${days.length}</div><div class="lbl">Days</div></div>
+    <div class="card"><div class="big">${uniqueCities.length}</div><div class="lbl">Destinations</div></div>
+    <div class="card"><div class="big">${transports.length}</div><div class="lbl">Transit Legs</div></div>
+  </div>`;
+
+  // Day by day
+  html += '<h2 class="iti-h2">Day-by-Day Itinerary</h2>';
+  days.forEach(day => {
+    const fd = fmt(day.date);
+    html += `<div class="iti-day ${day.isTravel ? 'travel' : ''}">
+      <div class="when"><div class="d">${fd.day}</div><div class="mo">${fd.month}</div><div class="wd">${fd.weekday}</div></div>
+      <div class="body">
+        <div class="city">${esc(day.location)}${day.isTravel ? ' <span class="tag">TRAVEL</span>' : ''}</div>
+        <div class="detail-row">
+          ${day.activities ? `<div><label>Activities</label>${esc(day.activities)}</div>` : ''}
+          ${day.food ? `<div><label>Food</label>${esc(day.food)}</div>` : ''}
+          ${day.places ? `<div><label>Places</label>${esc(day.places)}</div>` : ''}
+          ${day.transport ? `<div><label>Transport</label>${esc(day.transport)}</div>` : ''}
+        </div>
+      </div>
+    </div>`;
+  });
+
+  // Transport table
+  if (transports.length > 0) {
+    html += `<h2 class="iti-h2">Transport Legs</h2><table class="iti-table">
+      <tr><th>Segment</th><th>Mode</th><th>Time</th><th>Notes</th></tr>`;
+    transports.forEach(t => {
+      html += `<tr><td class="seg">${esc(t.from)} → ${esc(t.to)}</td><td>${esc(t.mode)}</td><td>${esc(t.duration)}</td><td>${esc(t.notes)}</td></tr>`;
+    });
+    html += `</table>`;
+  }
+
+  // Tips
+  if (tips.length > 0) {
+    html += `<h2 class="iti-h2">Smart Tips</h2><div class="iti-tips">`;
+    tips.forEach(t => html += `<div class="tip">${esc(t)}</div>`);
+    html += `</div>`;
+  }
+
+  // Budget
+  if (budget) {
+    html += `<h2 class="iti-h2">💰 Budget Estimate (${budget.currency || 'USD'})</h2>
+    <div class="budget-grid">
+      ${budget.accommodation ? `<div class="budget-item"><div class="amount">${budget.accommodation}</div><div class="label">Accommodation</div></div>` : ''}
+      ${budget.transport ? `<div class="budget-item"><div class="amount">${budget.transport}</div><div class="label">Transport</div></div>` : ''}
+      ${budget.food ? `<div class="budget-item"><div class="amount">${budget.food}</div><div class="label">Food</div></div>` : ''}
+      ${budget.activities ? `<div class="budget-item"><div class="amount">${budget.activities}</div><div class="label">Activities</div></div>` : ''}
+      ${budget.total ? `<div class="budget-item" style="background:var(--indigo);color:#fff;border-color:var(--indigo)"><div class="amount" style="color:#fff">${budget.total}</div><div class="label" style="color:rgba(255,255,255,0.7)">Total Est.</div></div>` : ''}
+    </div>`;
+  }
+
+  // Packing list
+  if (packing.length > 0) {
+    html += `<h2 class="iti-h2">🎒 Packing List</h2><div class="iti-tips" style="columns:1;">`;
+    packing.forEach(item => html += `<div class="tip">📌 ${esc(item)}</div>`);
+    html += `</div>`;
+  }
+
+  // Actions
+  html += `<div class="iti-actions">
+    <button class="btn btn-primary" onclick="downloadHTML()">💾 Download as HTML</button>
+    <button class="btn btn-secondary" onclick="printItinerary()">🖨 Print / PDF</button>
+  </div>
+  <div class="iti-footer">Generated with 🧠 AI · ${esc(tripTitle)} · Times approximate — verify before travel<br>Safe travels! ✨</div>`;
+
+  const output = document.getElementById('output');
+  output.innerHTML = html;
+  output.classList.add('visible');
+  output.scrollIntoView({ behavior: 'smooth' });
+  showToast('✅ AI itinerary ready!', true);
+}
+
+// ============================================================
+// RENDER Curated (existing logic)
+function renderCurated(data) {
+  const { tripTitle, homeAirport, outboundDate, dests, extraTips } = data;
+
+  const days = [];
+  days.push({
+    date: outboundDate, location: `Depart ${homeAirport}`,
+    activities: `Check in at ${homeAirport} • Evening flight • Cross the date line`,
+    food: `Airport food • Snacks for the flight`, places: `${homeAirport} International Terminal`,
+    transport: `${homeAirport} → First destination ✈`, accommodation: "In flight", isTravel: true
+  });
+
+  const allDays = [];
+  dests.forEach((dest, idx) => {
+    const city = dest.city;
+    const arriveDate = dest.arrive;
+    const departDate = dest.depart;
+    const arr = new Date(arriveDate + 'T00:00:00');
+    const dep = new Date(departDate + 'T00:00:00');
+    let nights = Math.round((dep - arr) / (1000 * 60 * 60 * 24));
+    if (nights <= 0) nights = 1;
+
+    const curated = getCityData(city);
+    const cityData = curated || genericFallback(city);
+    const activityList = cityData.activities.split(' • ');
+    const foodList = cityData.food.split(' • ');
+    const placeList = cityData.places.split(' • ');
+    const totalDays = Math.max(1, nights);
+
+    for (let n = 0; n < nights; n++) {
+      const d = new Date(arr);
+      d.setDate(d.getDate() + n);
+      const dateStr = d.toISOString().split('T')[0];
+      const chunk = Math.max(1, Math.ceil(activityList.length / totalDays));
+      const aIdx = (n * chunk) % activityList.length;
+      const fIdx = n % foodList.length;
+      const pIdx = (n * 2) % placeList.length;
+      const isTravel = n === 0 && idx > 0;
+
+      allDays.push({
+        date: dateStr, location: isTravel ? `${city}` : city,
+        activities: activityList.slice(aIdx, aIdx + chunk).join(' • '),
+        food: foodList.slice(fIdx, fIdx + 2).join(' • ') || foodList[0],
+        places: placeList.slice(pIdx, pIdx + 2).join(' • ') || placeList[0],
+        transport: "Local transit / walking", accommodation: cityData.accommodation,
+        isTravel: isTravel, cityKey: city
+      });
+    }
+  });
+
+  const lastDest = dests[dests.length - 1];
+  if (lastDest?.depart) {
+    allDays.push({
+      date: lastDest.depart, location: `Return to ${homeAirport}`,
+      activities: "Check-out • Last shopping • Airport transfer",
+      food: "Airport food • Coffee • Souvenirs", places: "Airport • Duty free",
+      transport: "Airport transfer + Flight ✈", accommodation: `Arrive ${homeAirport}`, isTravel: true
+    });
+  }
+
+  const fullDays = [...days, ...allDays];
+  const uniqueCities = [...new Set(dests.map(d => d.city))];
+
+  const transports = [];
+  transports.push({ from: homeAirport, to: dests[0]?.city || "Destination", mode: "Flight", duration: "Varies", notes: "Book early" });
+  for (let i = 0; i < dests.length - 1; i++) {
+    const a = dests[i].city, b = dests[i+1].city;
+    const t = CITY_TRANSPORT[`${a}->${b}`];
+    transports.push(t || { from: a, to: b, mode: "Train / Bus / Flight", duration: "Check schedules", notes: "Book ahead" });
+  }
+  transports.push({ from: dests[dests.length-1]?.city, to: homeAirport, mode: "Flight", duration: "Varies", notes: "Allow 3h at airport" });
+
+  const cityTips = new Set();
+  dests.forEach(d => {
+    (getCityData(d.city) || genericFallback(d.city)).tips?.forEach(t => cityTips.add(t));
+  });
+  const allTips = [...DEFAULT_TIPS, ...cityTips, ...extraTips.map(t => '📝 ' + t)];
+
+  const fmt = (iso) => {
+    const d = new Date(iso + 'T00:00:00');
+    return { day: d.getDate(), month: d.toLocaleString('en', { month: 'short' }), weekday: d.toLocaleString('en', { weekday: 'short' }) };
+  };
+  const fd2 = (iso) => {
+    const d = new Date(iso + 'T00:00:00');
+    return d.toLocaleString('en', { month: 'short', day: 'numeric', year: 'numeric' });
+  };
+  const esc = (s) => { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; };
+
+  const firstDate = fullDays[0]?.date;
+  const lastDate = fullDays[fullDays.length - 1]?.date;
+  const totalNights = fullDays.length - 2;
+
+  let html = `<div class="iti-hdr">
+    <h1>🗺 ${esc(tripTitle)}</h1>
+    <div class="sub">📖 Curated recommendations</div>
+    <div class="dates">📅 ${fd2(firstDate)} – ${fd2(lastDate)} &nbsp;·&nbsp; ${fullDays.length} days / ${totalNights} nights</div>
+  </div>
+  <div class="iti-route">${[homeAirport, ...uniqueCities, homeAirport].map((s, i, a) => esc(s) + (i < a.length-1 ? '<span class="arrow">→</span>' : '')).join('')}</div>
+  <h2 class="iti-h2">At a Glance</h2><div class="iti-glance">
+    <div class="card"><div class="big">${fullDays.length}</div><div class="lbl">Days</div></div>
+    <div class="card"><div class="big">${uniqueCities.length}</div><div class="lbl">Destinations</div></div>
+    <div class="card"><div class="big">${transports.filter(t => t.mode.toLowerCase().includes('flight')).length}</div><div class="lbl">Flights</div></div>
+  </div>
+  <h2 class="iti-h2">Day-by-Day Itinerary</h2>`;
+
+  fullDays.forEach(day => {
+    const fd = fmt(day.date);
+    html += `<div class="iti-day ${day.isTravel ? 'travel' : ''}">
+      <div class="when"><div class="d">${fd.day}</div><div class="mo">${fd.month}</div><div class="wd">${fd.weekday}</div></div>
+      <div class="body">
+        <div class="city">${esc(day.location)}${day.isTravel ? ' <span class="tag">TRAVEL</span>' : ''}</div>
+        <div class="detail-row">
+          ${day.activities ? `<div><label>Activities</label>${esc(day.activities)}</div>` : ''}
+          ${day.food ? `<div><label>Food</label>${esc(day.food)}</div>` : ''}
+          ${day.places ? `<div><label>Places</label>${esc(day.places)}</div>` : ''}
+        </div>
+      </div>
+    </div>`;
+  });
+
+  html += `<h2 class="iti-h2">Transport Legs</h2><table class="iti-table">
+    <tr><th>Segment</th><th>Mode</th><th>Time</th><th>Notes</th></tr>`;
+  transports.forEach(t => {
+    html += `<tr><td class="seg">${esc(t.from)} → ${esc(t.to)}</td><td>${esc(t.mode)}</td><td>${esc(t.duration)}</td><td>${esc(t.notes)}</td></tr>`;
+  });
+  html += `</table>`;
+
+  html += `<h2 class="iti-h2">Smart Tips</h2><div class="iti-tips">`;
+  allTips.forEach(t => html += `<div class="tip">${esc(t)}</div>`);
+  html += `</div>`;
+
+  html += `<div class="iti-actions">
+    <button class="btn btn-primary" onclick="downloadHTML()">💾 Download as HTML</button>
+    <button class="btn btn-secondary" onclick="printItinerary()">🖨 Print / PDF</button>
+  </div>
+  <div class="iti-footer">Curated database · ${esc(tripTitle)} · Times approximate — verify before travel<br>🧠 Safe travels! ✨</div>`;
+
+  const output = document.getElementById('output');
+  output.innerHTML = html;
+  output.classList.add('visible');
+  output.scrollIntoView({ behavior: 'smooth' });
+  showToast('✅ Itinerary ready!', true);
+}
+
+// ============================================================
+function downloadHTML() {
+  const output = document.getElementById('output');
+  const title = (document.getElementById('tripTitle').value || 'trip').replace(/\s+/g, '-').toLowerCase();
+  const styles = Array.from(document.styleSheets).map(s => {
+    try { return Array.from(s.cssRules || []).map(r => r.cssText).join(''); } catch(e) { return ''; }
+  }).join('');
+
+  const fullHTML = `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>${document.getElementById('tripTitle').value || 'Trip'}</title>
+<style>:root{--indigo:#1a2a6c;--indigo-soft:#2b3f8f;--crimson:#b21f1f;--crimson-soft:#e63946;--gold:#c9a227;--paper:#f7f4ec;--ink:#20232a;--muted:#5b606b;--line:#e2dccb}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--paper);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1000px;margin:0 auto;padding:0 20px 80px}
+.iti-hdr{background:linear-gradient(135deg,var(--indigo),var(--indigo-soft) 55%,var(--crimson));color:#fff;padding:48px 20px 40px;text-align:center;border-radius:16px;margin-bottom:24px;position:relative;overflow:hidden}
+.iti-hdr::after{content:"✈";position:absolute;right:10px;bottom:-10px;font-size:160px;font-weight:800;color:rgba(255,255,255,.05)}
+.iti-hdr h1{font-size:36px;margin-bottom:6px}
+.iti-hdr .sub{font-size:15px;opacity:.92}
+.iti-hdr .dates{display:inline-block;margin:14px 0 0;padding:10px 22px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);border-radius:999px;font-size:14px}
+.iti-route{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:20px 0 8px;font-size:14px}
+.iti-route .stop{background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 14px;font-weight:600;color:var(--indigo)}
+.iti-route .arrow{color:var(--crimson-soft);font-weight:700}
+.iti-glance{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-top:10px}
+.iti-glance .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center}
+.iti-glance .card .big{font-size:22px;font-weight:800;color:var(--indigo)}
+.iti-glance .card .lbl{font-size:11px;color:var(--muted);text-transform:uppercase}
+.iti-h2{font-size:24px;color:var(--indigo);margin:40px 0 16px;padding-bottom:6px;border-bottom:3px solid var(--gold);display:inline-block}
+.iti-day{display:grid;grid-template-columns:110px 1fr;background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:12px;overflow:hidden}
+.iti-day .when{background:var(--indigo);color:#fff;padding:16px 12px;display:flex;flex-direction:column;justify-content:center;text-align:center}
+.iti-day .when .d{font-size:20px;font-weight:800}
+.iti-day .when .mo{font-size:12px;opacity:.85;text-transform:uppercase}
+.iti-day .when .wd{font-size:11px;opacity:.7;margin-top:2px}
+.iti-day.travel .when{background:var(--crimson)}
+.iti-day .body{padding:14px 18px}
+.iti-day .body .city{font-size:16px;font-weight:700;margin-bottom:4px}
+.iti-day .body .city .tag{font-size:10px;font-weight:700;color:#fff;background:var(--crimson-soft);padding:2px 7px;border-radius:999px;margin-left:6px;vertical-align:middle}
+.iti-day .body .detail-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px;font-size:14px;color:var(--muted)}
+.iti-day .body .detail-row>div{flex:1;min-width:160px}
+.iti-day .body .detail-row label{font-weight:700;color:var(--indigo);margin-right:6px;font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+.iti-table{width:100%;border-collapse:collapse;margin-top:12px;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:14px}
+.iti-table th,.iti-table td{padding:10px 12px;border-bottom:1px solid var(--line)}
+.iti-table th{background:var(--indigo);color:#fff;font-weight:600}
+.iti-table tr:last-child td{border-bottom:none}
+.iti-table td.seg{font-weight:700;color:var(--indigo)}
+.iti-tips{columns:2;column-gap:24px;margin-top:10px}
+.iti-tips .tip{break-inside:avoid;background:#fff;border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:14px}
+.budget-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:10px}
+.budget-item{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px;text-align:center}
+.budget-item .amount{font-size:18px;font-weight:800;color:var(--indigo)}
+.budget-item .label{font-size:11px;color:var(--muted);text-transform:uppercase}
+.iti-actions{display:flex;gap:12px;justify-content:center;margin:32px 0;flex-wrap:wrap}
+.iti-footer{text-align:center;color:var(--muted);font-size:13px;margin-top:40px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;border:none;border-radius:999px;font-size:16px;font-weight:700;cursor:pointer}
+.btn-primary{background:var(--indigo);color:#fff}
+.btn-secondary{background:var(--gold);color:#fff}
+@media (max-width:680px){.iti-tips{columns:1}.iti-day{grid-template-columns:80px 1fr}.iti-hdr h1{font-size:30px}}
+@media print{.iti-actions{display:none}body{background:#fff}.iti-hdr{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style></head>
+<body><div class="wrap">${output.innerHTML}</div></body></html>`;
+
+  const blob = new Blob([fullHTML], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${title}.html`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('📥 HTML downloaded!', true);
+}
+
+function printItinerary() { window.print(); }
+
+function showToast(msg, ok) {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+  const t = document.createElement('div');
+  t.className = 'toast' + (ok ? ' success' : ' error');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 3000);
+}
+</script>
+</body>
+</html>
