@@ -10,7 +10,12 @@ OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
 OPENROUTER_BASE = "https://openrouter.ai/api/v1"
 MODEL = os.getenv("OPENROUTER_MODEL", "openrouter/free")
 
-SYSTEM_PROMPT = """You are an expert travel planner. Generate a detailed, day-by-day travel itinerary in JSON format.
+SYSTEM_PROMPT = """You are an expert travel planner. Generate a specific, detailed, day-by-day itinerary in JSON format.
+
+CRITICAL: Your recommendations MUST be specific and actionable. Do NOT use vague phrases like "visit local markets" or "try local cuisine". Instead:
+- Name specific attractions with their districts
+- Name specific dishes AND where to try them (restaurant names or neighborhoods)
+- Include realistic timing (morning / afternoon / evening)
 
 Output ONLY valid JSON matching this schema:
 {
@@ -22,28 +27,32 @@ Output ONLY valid JSON matching this schema:
       "date": "YYYY-MM-DD",
       "location": "City/Area name",
       "isTravel": false,
-      "activities": "Detailed day plan with times",
-      "food": "Specific dish and restaurant recommendations",
-      "places": "Specific places/addresses",
-      "transport": "Local transport notes"
+      "activities": "Specific timed activities (e.g. '9am: Sagrada Familia • Noon: La Boqueria • 3pm: Gothic Quarter walk')",
+      "food": "Specific dishes + where (e.g. 'Paella at 7 Portes • Patatas bravas at Bar Canete')",
+      "places": "Specific attraction names and districts",
+      "transport": "Local transport advice"
     }
   ],
   "transports": [
-    {"from": "Origin", "to": "Dest", "mode": "Mode", "duration": "Time", "notes": "Tips"}
+    {"from": "Origin city", "to": "Dest city", "mode": "Flight/Train", "duration": "~Xh", "notes": "Specific booking tip"}
   ],
-  "tips": ["Tip 1", "Tip 2"],
-  "packingList": ["Item 1", "Item 2"],
+  "tips": ["Practical tip for the destination (max 10, be specific)"],
+  "packingList": ["Items specific to this destination's climate"],
   "budgetEstimate": {
-    "accommodation": "$", "transport": "$", "food": "$",
-    "activities": "$", "total": "$", "currency": "USD"
+    "accommodation": "$X-Y/night", "transport": "$X-Y total",
+    "food": "$X-Y/day", "activities": "$X-Y total",
+    "total": "$X-Y", "currency": "USD"
   }
 }
 
 Rules:
-- Output ONLY the JSON object, no markdown
+- Output ONLY the JSON object, no markdown or commentary
 - Use the user's exact dates and leg order
 - For travel days: focus on transit logistics
-- Budget in USD for mid-range traveler"""
+- Budget in USD for mid-range traveler
+- Each day MUST have unique activities — do not repeat
+- Name specific restaurants, dishes, neighborhoods, and attractions — NOT generic categories"""
+
 
 @app.after_request
 def add_cors(response):
@@ -52,10 +61,11 @@ def add_cors(response):
     response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
     return response
 
+
 @app.route("/api/generate", methods=["POST", "OPTIONS"])
 def generate():
     if not OPENROUTER_API_KEY:
-        return jsonify({"error": "OpenRouter API key not configured"}), 500
+        return jsonify({"error": "OpenRouter API key not configured on server"}), 500
 
     trip = request.get_json()
     if not trip or not trip.get("legs"):
@@ -111,11 +121,12 @@ Generate the full itinerary JSON now."""
         return jsonify(result)
 
     except json.JSONDecodeError as e:
-        return jsonify({"error": f"Model returned invalid JSON: {e}"}), 502
+        return jsonify({"error": f"Model returned bad JSON: {e}"}), 502
     except urllib.error.HTTPError as e:
-        return jsonify({"error": f"OpenRouter HTTP error: {e.code} {e.read().decode()}"}), 502
+        return jsonify({"error": f"OpenRouter HTTP {e.code}: {e.read().decode()}"}), 502
     except Exception as e:
         return jsonify({"error": f"Generation failed: {str(e)}"}), 500
+
 
 @app.route("/api/health", methods=["GET"])
 def health():

@@ -331,38 +331,158 @@ const CURATED = {
     places: "Wawel Castle • Main Square • Kazimierz • Planty Park • Wieliczka",
     accommodation: "Hotel near Old Town or Kazimierz",
     tips: ["Wieliczka & Auschwitz need advance booking — separate days.", "Kazimierz has best restaurants & nightlife.", "Eat zapiekanka from Okrąglak.", "Day trip to Zakopane (2h bus) for Tatra views."]
+  },
+  "Bali": {
+    activities: "Ubud Monkey Forest • Tanah Lot Temple • Uluwatu Temple • Tegallalang Rice Terraces • Mount Batur sunrise trek • Seminyak Beach • Ubud yoga & wellness • Snorkeling at Blue Lagoon • Waterbom Bali",
+    food: "Nasi Goreng • Mie Goreng • Satay • Babi Guling • Bebek Betutu • Sate Lilit • Fresh tropical fruit",
+    places: "Ubud • Seminyak • Uluwatu • Canggu • Nusa Dua • Tanah Lot • Tegallalang • Mount Batur",
+    accommodation: "Villa or resort in Seminyak/Ubud (mid-range) or Nusa Dua (luxury)",
+    tips: ["Rent a scooter (IDR 70k/day) or hire a driver for day trips.", "Visit temples during off-peak — dawn or late afternoon.", "Bali is motorbike chaos — wear a helmet and get international driving permit.", "Book Mount Batur trek (¥1.5M-2M) through a reputable operator.", "Download Gojek for transport and food delivery."]
+  },
+  "Bangkok": {
+    activities: "Grand Palace • Wat Pho (Reclining Buddha) • Wat Arun • Chatuchak Weekend Market • Khao San Road • Chao Phraya river cruise • Rooftop bar at sunset • Floating market day trip",
+    food: "Pad Thai • Tom Yum Goong • Green Curry • Mango Sticky Rice • Som Tum • Boat noodles • Street food at Yaowarat (Chinatown)",
+    places: "Grand Palace • Wat Pho • Khao San Road • Siam • Sukhumvit • Yaowarat • Asiatique • Chatuchak Market",
+    accommodation: "Hotel near Sukhumvit or Siam (modern) or Banglamphu (budget/backpacker)",
+    tips: ["Get a Rabbit Card for BTS Skytrain.", "Street food at Yaowarat (Chinatown) after 6pm is unbeatable.", "Temples require covered shoulders & knees — bring a sarong.", "Bargain at markets — start at 50% of asking price.", "Book Grand Palace early morning to beat crowds and heat."]
+  },
+  "Singapore": {
+    activities: "Marina Bay Sands • Gardens by the Bay • Sentosa Island • Chinatown • Little India • Orchard Road shopping • Singapore Zoo • Night Safari • Jewel Changi waterfall",
+    food: "Chicken rice • Laksa • Chili crab • Hokkien Mee • Satay • Kaya toast • Roti prata • Hawker center food",
+    places: "Marina Bay • Gardens by the Bay • Sentosa • Chinatown • Little India • Orchard Road • Jewel Changi",
+    accommodation: "Hotel near Marina Bay or Bugis (central, good transport)",
+    tips: ["Hawker centers are the best cheap eats — try Maxwell Food Centre & Lau Pa Sat.", "Sentosa has beaches, Universal Studios, and casinos.", "Singapore is super walkable and the MRT is excellent.", "Changi Airport is a destination itself — Jewel waterfall is stunning.", "Carry a light jacket — AC everywhere is freezing."]
+  },
+  "Seoul": {
+    activities: "Gyeongbokgung Palace • Bukchon Hanok Village • N Seoul Tower • Myeongdong shopping • Hongdae street culture • Gangnam • DMZ tour • Gwangjang Market • Nami Island day trip",
+    food: "Bibimbap • Korean BBQ • Kimchi jjigae • Tteokbokki • Fried chicken & beer • Kimbap • Soju",
+    places: "Gyeongbokgung • Myeongdong • Hongdae • Gangnam • Insadong • Bukchon • Namsan • Itaewon",
+    accommodation: "Hotel near Myeongdong or Hongdae (convenient & lively)",
+    tips: ["Get a T-Money card for subway (cheap & efficient).", "DMZ tours book up — reserve 2+ weeks ahead.", "Myeongdong is the best shopping district.", "Korean BBQ restaurants often serve unlimited banchan (sides).", "Naver Map works better than Google Maps in Korea."]
+  },
+  "Sydney": {
+    activities: "Sydney Opera House • Harbour Bridge climb • Bondi Beach • Manly ferry • Taronga Zoo • The Rocks • Darling Harbour • Royal Botanic Garden • Blue Mountains day trip",
+    food: "Fish & chips • Meat pie • Barramundi • Brunch culture • Flat white coffee • Oysters • Pavlova",
+    places: "Circular Quay • The Rocks • Bondi Beach • Manly • Darling Harbour • Sydney Tower • Blue Mountains",
+    accommodation: "Hotel near Circular Quay or Darling Harbour (touristy) or Surry Hills (local vibe)",
+    tips: ["Ferry from Circular Quay to Manly is the best value sightseeing.", "Bondi to Coogee coastal walk is stunning — bring walking shoes.", "Blue Mountains deserves a full day (train from Central Station).", "Opal card works on all public transport.", "Book Harbour Bridge climb in advance — sunrise slots sell out."]
+  },
+  "Barcelona": {
+    activities: "Sagrada Familia • Park Güell • Gothic Quarter (Barri Gòtic) • La Boqueria Market • Casa Batlló • Casa Milà • Montjuïc Castle • Barceloneta Beach • Camp Nou",
+    food: "Paella • Patatas bravas • Jamón ibérico • Pintxos (Basque tapas) • Crema catalana • Sangria • Cava",
+    places: "Sagrada Familia • Park Güell • Gothic Quarter • Las Ramblas • Barceloneta • Montjuïc • Gràcia",
+    accommodation: "Hotel near Eixample or Gothic Quarter/Barri Gòtic",
+    tips: ["Book Sagrada Familia tickets online 1–2 months ahead — essential.", "Park Güell also requires timed tickets.", "Watch for pickpockets on Las Ramblas — keep valuables secure.", "La Boqueria Market closes Sunday — go weekday mornings.", "Day trip to Montserrat (1hr train) for stunning monastery views."]
   }
 };
 
 function genericFallback(city) {
+  // Creates reasonable suggestions for ANY city not in the database
+  const safeCity = city || "your destination";
+  const activities = [
+    `Explore ${safeCity}'s historic old town / city center`,
+    `Visit local museums and cultural landmarks`,
+    `Walking tour of the downtown district`,
+    `Shop at local markets and boutiques`,
+    `Enjoy the local parks and green spaces`,
+    `Evening food tour or cooking class`,
+    `Day trip to nearby natural attractions`
+  ];
+  const foods = [
+    `Local street food specialties`,
+    `Regional dishes at a traditional restaurant`,
+    `Fresh market produce and snacks`,
+    `Cafes and bakeries for breakfast`,
+    `Seafood or meat specialties (ask locals!)`
+  ];
   return {
-    activities: `Explore ${city} • Visit historic districts • Local markets • Walking tour • Cultural landmarks`,
-    food: `Local cuisine • Street food • Regional specialties • Cafe culture • Market dining`,
-    places: `${city} city center • Main attractions • Local neighborhoods • Parks & gardens`,
-    accommodation: `Hotel near ${city} city center`,
-    tips: [`Research ${city}'s public transport options.`, `Learn a few local phrases.`, `Try the local street food!`, `Download offline maps.`]
+    activities: activities.slice(0, 4).join(" • "),
+    food: foods.slice(0, 3).join(" • "),
+    places: `${safeCity} old town / city center • Main square or plaza • Local market • Parks and gardens • Nearby natural attraction`,
+    accommodation: `Hotel or B&B in ${safeCity} city center`,
+    tips: [
+      `Research ${safeCity}'s public transport options (bus, metro, taxis) before arriving.`,
+      `Learn a few local phrases — locals appreciate the effort!`,
+      `Check if ${safeCity} has a city tourist pass for attraction discounts.`,
+      `Ask hotel staff for their personal restaurant recommendations — always the best meals.`,
+      `Download offline maps and translation apps before you go.`,
+      `Carry local currency — many places don't accept cards everywhere.`
+    ]
   };
 }
 
 const CITY_TRANSPORT = {
+  // Japan
   "Tokyo->Fukuoka": { mode: "Shinkansen Nozomi", duration: "~5h", notes: "Reserve via SmartEX app" },
   "Tokyo->Osaka": { mode: "Shinkansen Nozomi", duration: "~2.5h", notes: "Frequent departures" },
-  "Tokyo->Hakone": { mode: "Shinkansen + Tozan", duration: "~1.5h", notes: "To Odawara, then Tozan" },
+  "Tokyo->Hakone": { mode: "Shinkansen + Tozan Railway", duration: "~1.5h", notes: "To Odawara, then Tozan" },
   "Fukuoka->Osaka": { mode: "Shinkansen Nozomi", duration: "~2.5h", notes: "Via Hiroshima" },
   "Osaka->Tokyo": { mode: "Shinkansen Nozomi", duration: "~2.5h", notes: "Frequent departures" },
   "Osaka->Hakone": { mode: "Shinkansen Nozomi", duration: "~2.5h", notes: "To Odawara" },
   "Osaka->Kyoto": { mode: "JR Special Rapid", duration: "~30min", notes: "Cheap & frequent" },
   "Hakone->Tokyo": { mode: "Shinkansen", duration: "~1.5h", notes: "From Odawara" },
-  "Beijing->Shanghai": { mode: "High-speed train", duration: "~4.5h", notes: "G-trains, frequent" },
-  "Shanghai->Hong Kong": { mode: "Flight or HSR", duration: "~2.5h flight / 8h train", notes: "Flight faster" },
+  // China
+  "Beijing->Shanghai": { mode: "High-speed train", duration: "~4.5h", notes: "G-trains frequent" },
+  "Shanghai->Hong Kong": { mode: "Flight", duration: "~2.5h", notes: "Fastest option" },
+  // Italy
   "Rome->Florence": { mode: "Frecciarossa/Italo", duration: "~1.5h", notes: "Book ahead" },
-  "Florence->Venice": { mode: "Frecciarossa", duration: "~2h", notes: "Scenic ride" },
+  "Florence->Venice": { mode: "Frecciarossa", duration: "~2h", notes: "Scenic ride through Emilia" },
   "Venice->Milan": { mode: "Frecciarossa", duration: "~2.5h", notes: "Direct" },
   "Rome->Milan": { mode: "Frecciarossa", duration: "~3h", notes: "Frequent" },
+  // Europe cross-border
   "Paris->London": { mode: "Eurostar", duration: "~2.5h", notes: "City center to city center" },
   "London->Paris": { mode: "Eurostar", duration: "~2.5h", notes: "From St Pancras" },
-  "Paris->Milan": { mode: "TGV or Flight", duration: "~7h / 1.5h", notes: "TGV through Alps scenic" }
+  "Paris->Milan": { mode: "TGV or Flight", duration: "~7h TGV / 1.5h flight", notes: "TGV through Alps scenic" }
 };
+
+// Countries by region — used to determine default transport between destinations
+const COUNTRY_OF_CITY = {
+  "Tokyo":"Japan","Fukuoka":"Japan","Osaka":"Japan","Kyoto":"Japan","Hakone":"Japan","Ainoshima":"Japan",
+  "Beijing":"China","Shanghai":"China","Hong Kong":"China",
+  "Rome":"Italy","Florence":"Italy","Venice":"Italy","Milan":"Italy",
+  "Paris":"France","London":"UK",
+  "Bali":"Indonesia","Bangkok":"Thailand","Singapore":"Singapore","Seoul":"South Korea",
+  "Sydney":"Australia","Barcelona":"Spain","Warsaw":"Poland","Krakow":"Poland"
+};
+
+/**
+ * Smart transport lookup between two cities.
+ * 1) Check explicit table (CITY_TRANSPORT)
+ * 2) If same country → local transit (train/bus)
+ * 3) If different countries → flight
+ * 4) Distance heuristic: short distance in same country → train, otherwise flight
+ */
+function getTransportBetween(from, to) {
+  const key = `${from}->${to}`;
+  if (CITY_TRANSPORT[key]) return CITY_TRANSPORT[key];
+
+  const fromCountry = COUNTRY_OF_CITY[from] || "";
+  const toCountry = COUNTRY_OF_CITY[to] || "";
+
+  if (fromCountry && toCountry && fromCountry === toCountry) {
+    return { mode: "Train / Bus", duration: "Varies", notes: `Within ${fromCountry}` };
+  }
+
+  if (fromCountry && toCountry && fromCountry !== toCountry) {
+    return { mode: "Flight", duration: "Varies", notes: `${fromCountry} → ${toCountry} (visa requirements?)` };
+  }
+
+  // Last resort — generic guess based on distance heuristic
+  // Cities in same broad region? Train. Otherwise flight.
+  const sameRegion = {
+    "Europe": ["Paris","London","Rome","Florence","Venice","Milan","Barcelona","Warsaw","Krakow"],
+    "SE Asia": ["Bali","Bangkok","Singapore","Hong Kong"],
+  };
+
+  for (const [, cities] of Object.entries(sameRegion)) {
+    if (cities.includes(from) && cities.includes(to)) {
+      return { mode: "Bus / Train", duration: "Varies", notes: "Regional travel" };
+    }
+  }
+
+  // Default: flight to be safe
+  return { mode: "Flight", duration: "Varies", notes: "Book in advance for best price" };
+}
 
 const DEFAULT_TIPS = [
   "💡 Check visa requirements well in advance.",
@@ -727,8 +847,8 @@ function renderCurated(data) {
   transports.push({ from: homeAirport, to: dests[0]?.city || "Destination", mode: "Flight", duration: "Varies", notes: "Book early" });
   for (let i = 0; i < dests.length - 1; i++) {
     const a = dests[i].city, b = dests[i+1].city;
-    const t = CITY_TRANSPORT[`${a}->${b}`];
-    transports.push(t || { from: a, to: b, mode: "Train / Bus / Flight", duration: "Check schedules", notes: "Book ahead" });
+    const t = getTransportBetween(a, b);
+    transports.push({ from: a, to: b, mode: t.mode, duration: t.duration, notes: t.notes });
   }
   transports.push({ from: dests[dests.length-1]?.city, to: homeAirport, mode: "Flight", duration: "Varies", notes: "Allow 3h at airport" });
 
