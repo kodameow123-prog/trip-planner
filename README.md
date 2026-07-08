@@ -28,7 +28,7 @@ Or create one manually at [github.com/new](https://github.com/new) and push.
 4. **Root Directory**: `/` (the project root)
 5. **Environment Variables** → Add:
    - `OPENROUTER_API_KEY` = `sk-or-v1-xxxxxxxxx` (your key)
-   - `OPENROUTER_MODEL` = `deepseek/deepseek-v4-flash` (or `nvidia/nemotron-3-ultra-550b-a55b:free`)
+   - `OPENROUTER_MODEL` = `openrouter/free` (or `deepseek/deepseek-v4-flash`, `nvidia/nemotron-3-ultra-550b-a55b:free`)
 6. Click **Deploy**
 
 That's it. Vercel auto-detects the `vercel.json` config.
