@@ -373,6 +373,13 @@ const CURATED = {
     places: "Sagrada Familia • Park Güell • Gothic Quarter • Las Ramblas • Barceloneta • Montjuïc • Gràcia",
     accommodation: "Hotel near Eixample or Gothic Quarter/Barri Gòtic",
     tips: ["Book Sagrada Familia tickets online 1–2 months ahead — essential.", "Park Güell also requires timed tickets.", "Watch for pickpockets on Las Ramblas — keep valuables secure.", "La Boqueria Market closes Sunday — go weekday mornings.", "Day trip to Montserrat (1hr train) for stunning monastery views."]
+  },
+  "Melbourne": {
+    activities: "Federation Square • Royal Botanic Gardens • National Gallery of Victoria • Melbourne Cricket Guard (MCG) tour • Street art laneways (Hosier Lane) • Queen Victoria Market • Day trip to Great Ocean Road • Yarra Valley wine tour",
+    food: "Coffee culture (try Patricia, St. Ali) • Dim sim • Chicken parmigiana • Vietnamese pho • Greek souvlaki • Modern Australian meat pie • Tim Tam slam",
+    places: "Federation Square • Southbank • St Kilda Beach • Brighton Beach (colorful boxes) • Carlton (Lygon St) • Collingwood (smith St) • Fitzroy (Brunswick St)",
+    accommodation: "Hotel in CBD, Southbank, or trendy suburbs like Fitzroy or St Kilda",
+    tips: ["Melbourne's weather changes rapidly — always carry a compact umbrella and layers.", "Free tram zone covers CBD and Docklands — hop on and off for easy sightseeing.", "Coffee is serious business — try the specialty cafes in laneways.", "Book MCG tour in advance if you're a sports fan.", "Queen Victoria Market is open Tues, Thu, Sat, Sun — go early for best produce."]
   }
 };
 
@@ -572,6 +579,7 @@ async function generate() {
   const tripTitle = document.getElementById('tripTitle').value.trim() || "My Trip";
   const homeAirport = document.getElementById('homeAirport').value.trim() || "Home";
   const outboundDate = document.getElementById('outboundDate').value;
+  const interests = document.getElementById('interests').value.trim();
   const extraTips = document.getElementById('extraTips').value.trim().split('\n').filter(t => t.trim());
 
   const destRows = document.querySelectorAll('#destsContainer .dest-row');
@@ -641,7 +649,9 @@ async function generate() {
         routeSummary: `${homeAirport} → ${dests.map(d => d.city).join(' → ')} → ${homeAirport}`,
         legs: legs,
         transports: [],
-        customTips: extraTips
+        customTips: extraTips,
+        interests: interests
+      };
       };
 
       const resp = await fetch('/api/generate', {

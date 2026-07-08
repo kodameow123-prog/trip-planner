@@ -16,6 +16,7 @@ CRITICAL: Your recommendations MUST be specific and actionable. Do NOT use vague
 - Name specific attractions with their districts
 - Name specific dishes AND where to try them (restaurant names or neighborhoods)
 - Include realistic timing (morning / afternoon / evening)
+- Incorporate the user's stated interests when suggesting activities
 
 Output ONLY valid JSON matching this schema:
 {
@@ -51,7 +52,8 @@ Rules:
 - For travel days: focus on transit logistics
 - Budget in USD for mid-range traveler
 - Each day MUST have unique activities — do not repeat
-- Name specific restaurants, dishes, neighborhoods, and attractions — NOT generic categories"""
+- Name specific restaurants, dishes, neighborhoods, and attractions — NOT generic categories
+- Incorporate user interests into activity suggestions when relevant"""
 
 
 @app.after_request
@@ -85,6 +87,8 @@ Route: {trip.get('routeSummary', '—')}
 
 Legs (in order, keep these dates/locations exactly):
 {legs_text}
+
+User interests: {trip.get('interests', 'general travel')}
 
 Generate the full itinerary JSON now."""
 
