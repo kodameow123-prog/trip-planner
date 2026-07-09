@@ -8,7 +8,7 @@ app = Flask(__name__)
 
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
 OPENROUTER_BASE = "https://openrouter.ai/api/v1"
-MODEL = os.getenv("OPENROUTER_MODEL", "deepseek/deepseek-v4-flash")
+MODEL = os.getenv("OPENROUTER_MODEL", "openrouter/free")
 
 SYSTEM_PROMPT = """You are an expert travel planner. Generate a specific, detailed, day-by-day itinerary in JSON format.
 
