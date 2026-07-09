@@ -192,7 +192,7 @@
     <h2>🧠 Interests & Extra Notes</h2>
     <div class="form-group" style="margin-bottom:8px;">
       <label>Your Interests</label>
-      <input type="text" id="interests" value="nature, food, culture, shopping, onsens, autumn leaves" placeholder="e.g., nature, food, history, hiking">
+      <input type="text" id="interests" value="Landmarks, must-see, must-do, local food, culture, shopping, nightlife" placeholder="e.g., nature, food, history, hiking">
     </div>
     <div class="form-group">
       <label>Extra Notes (one per line)</label>
@@ -566,6 +566,15 @@ function addDest(city = "", arrive = "", depart = "") {
     <div><button class="btn-icon" onclick="removeDest(${id})">🗑</button></div>
   `;
   container.appendChild(row);
+
+  // Auto-fill depart date when arrive date changes (if depart is empty)
+  const arriveInput = row.querySelector('.dest-arrive');
+  const departInput = row.querySelector('.dest-depart');
+  arriveInput.addEventListener('change', () => {
+    if (!departInput.value || departInput.value < arriveInput.value) {
+      departInput.value = arriveInput.value;
+    }
+  });
 }
 
 function removeDest(id) {
