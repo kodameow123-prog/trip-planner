@@ -153,6 +153,7 @@
     <h1>🗺 Trip Planner</h1>
     <div class="sub">Enter destinations & dates — get a full itinerary with activities, food, and tips</div>
     <span class="header-badge" id="modeBadge">⚡ Checking mode...</span>
+    <button class="btn btn-ghost" id="aiToggle" style="margin-left:10px;font-size:13px;padding:6px 12px;display:none;" onclick="toggleAI()">🧠 Use AI</button>
   </header>
 
   <div class="section">
@@ -527,26 +528,46 @@ const DEFAULT_TIPS = [
 
 // ============================================================
 let destCounter = 0;
-let useAI = false; // will detect on load
-
-document.addEventListener('DOMContentLoaded', async () => {
-  // Check if AI backend is available
+let useAI = false;
+let aiAvailable = false;
+const modeBadge = document.getElementById('modeBadge');
+const aiToggle = document.getElementById('aiToggle');
+const tryAI = async () => {
   try {
     const resp = await fetch('/api/health');
     if (resp.ok) {
-      useAI = true;
-      document.getElementById('modeBadge').innerHTML = '🧠 AI-Powered mode (OpenRouter)';
-      document.getElementById('modeBadge').className = 'header-badge badge-ai';
-    } else {
-      throw new Error('not ok');
+      aiAvailable = true;
+      modeBadge.innerHTML = '📖 Curated database mode <small>(AI available)</small>';
+      modeBadge.className = 'header-badge badge-local';
+      if (aiToggle) aiToggle.style.display = '';
+      return true;
     }
-  } catch (e) {
-    useAI = false;
-    document.getElementById('modeBadge').innerHTML = '📖 Curated database mode (offline)';
-    document.getElementById('modeBadge').className = 'header-badge badge-local';
-  }
+  } catch (e) {}
+  aiAvailable = false;
+  modeBadge.innerHTML = '📖 Curated database mode (offline)';
+  modeBadge.className = 'header-badge badge-local';
+  if (aiToggle) aiToggle.style.display = 'none';
+  return false;
+};
+
+document.addEventListener('DOMContentLoaded', async () => {
+  await tryAI();
   loadPreset();
 });
+
+function toggleAI() {
+  if (!aiAvailable) return;
+  useAI = !useAI;
+  if (useAI) {
+    modeBadge.innerHTML = '🧠 AI-Powered mode (OpenRouter)';
+    modeBadge.className = 'header-badge badge-ai';
+    aiToggle.innerHTML = '📖 Switch to Curated';
+  } else {
+    modeBadge.innerHTML = '📖 Curated database mode <small>(AI available)</small>';
+    modeBadge.className = 'header-badge badge-local';
+    aiToggle.innerHTML = '🧠 Use AI';
+  }
+}
 
 function getCityData(city) {
   if (CURATED[city]) return CURATED[city];
