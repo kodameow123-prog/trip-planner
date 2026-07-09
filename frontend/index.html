@@ -406,6 +406,65 @@ const CURATED = {
       "Many restaurants offer a 'menu of the day' (polední menu) for great value",
       "Watch out for taxi overcharging – use AAA or Uber instead"
     ]
+  },
+  "Naples": {
+    activities: "Pompeii day trip • Naples Historic Centre • Underground Naples • Lungomare seaside walk • Castel dell'Ovo • Sansevero Chapel",
+    food: "Authentic Neapolitan pizza • Fried pizza • Sfogliatella • Espresso • Mozzarella di bufala • Pasta e patate",
+    places: "Piazza del Plebiscito • Spaccanapoli • Lungomare • Pompeii ruins",
+    accommodation: "Hotel near Piazza del Plebiscito or Napoli Centrale",
+    tips: [
+      "Book Pompeii tickets online to skip lines — go early morning",
+      "Spaccanapoli is the main ancient Roman street dividing old Naples",
+      "Keep valuables secure — pickpocketing in crowded Centro Storico",
+      "Ferry to Capri/Amalfi runs from Molo Beverello — compare prices"
+    ]
+  },
+  "Messina": {
+    activities: "Messina Cathedral & Astronomical Clock • Strait of Messina viewpoint • Taormina day trip • San Rizzo Panorama",
+    food: "Pasta alla Norma • Arancini • Granita al limone • Cannoli • Fresh swordfish",
+    places: "Piazza del Duomo • Strait of Messina • Via Garibaldi • Taormina Theatre",
+    accommodation: "Hotel in Messina centre or stay overnight in Taormina",
+    tips: [
+      "Taormina is 45min by train — best day trip if short on time",
+      "Greek Theatre in Taormina is stunning, book ahead in summer",
+      "Ferry to Calabria across the Strait is cheap if you want to cross mainland"
+    ]
+  },
+  "Santorini": {
+    activities: "Oia sunset walk • Fira caldera hike • Red Beach • Akrotiri ruins • Wine tasting (Assyrtiko) • Catamaran cruise",
+    food: "Fresh grilled octopus • Tomato keftedes • Fava dip • Local wine (Assyrtiko) • Gyros",
+    places: "Oia • Fira • Imerovigli • Akrotiri • Red Beach • Amoudi Bay",
+    accommodation: "Hotel in Oia or Imerovigli for caldera views, or Fira for budget",
+    tips: [
+      "Sunset in Oia is famous — arrive 90min early to stake a spot",
+      "Best sunset views from Skaros Rock or Imerovigli, fewer crowds",
+      "Wear good shoes — streets are uneven cobblestone",
+      "Ferry from Athens is 5–8hrs, or fly 45min to JTR"
+    ]
+  },
+  "Mykonos": {
+    activities: "Little Venice • Windmills (Kato Mili) • Delos island day trip • Paradise Beach • Chora old town walk",
+    food: "Authentic Greek salad • Souvlaki • Fresh seafood • Loukoumades (honey donuts) • Ouzo",
+    places: "Little Venice • Windmills • Chora • Paradise Beach • Delos ruins",
+    accommodation: "Hotel in Chora or Ornos for calmer beaches",
+    tips: [
+      "Delos day trip departs from Old Port — 30min boat, worth every minute",
+      "Little Venice best at sunset, book waterside dinner early",
+      "Reserve sunbeds in August — beaches get very crowded"
+    ]
+  },
+  "Athens": {
+    activities: "Acropolis & Parthenon • Acropolis Museum • Plaka stroll • National Garden • Temple of Hephaestus • Mt Lycabettus sunset",
+    food: "Souvlaki • Moussaka • Tzatziki • Greek salad • Baklava • Ouzo • Frappe",
+    places: "Acropolis • Plaka • Monastiraki • Syntagma • Psiri • Kolonaki",
+    accommodation: "Hotel in Plaka or Monastiraki for walkability",
+    tips: [
+      "Acropolis opens 8am — go early to beat crowds and heat",
+      "Combined ticket covers Acropolis + 6 sites for ~€30",
+      "Syntagma changing of the guard at 11am on Sundays",
+      "Plaka is touristy but charming — explore side streets",
+      "Ferry to islands runs from Piraeus, 1–1.5hr from Athens centre"
+    ]
   }
 };
 
@@ -460,6 +519,12 @@ const CITY_TRANSPORT = {
   "Florence->Venice": { mode: "Frecciarossa", duration: "~2h", notes: "Scenic ride through Emilia" },
   "Venice->Milan": { mode: "Frecciarossa", duration: "~2.5h", notes: "Direct" },
   "Rome->Milan": { mode: "Frecciarossa", duration: "~3h", notes: "Frequent" },
+  // Italy cruise stops
+  "Rome->Naples": { mode: "Frecciarossa/Italo", duration: "~1.1h", notes: "Fast and frequent — great day trip base" },
+  "Naples->Messina": { mode: "Ferry/Bus + Train", duration: "~4–6h total", notes: "Ferry to Sicily or train around coast" },
+  "Messina->Santorini": { mode: "Ferry/Flight", duration: "~3–5h total", notes: "Ferry via Athens or direct summer flights" },
+  "Santorini->Mykonos": { mode: "Ferry", duration: "~2h", notes: "High-speed ferry frequent in summer ✨" },
+  "Mykonos->Athens": { mode: "Flight/Ferry", duration: "~1h flight / ~3h ferry", notes: "Flight easiest from JMK→ATH" },
   // Europe cross-border
   "Paris->London": { mode: "Eurostar", duration: "~2.5h", notes: "City center to city center" },
   "London->Paris": { mode: "Eurostar", duration: "~2.5h", notes: "From St Pancras" },
@@ -470,10 +535,10 @@ const CITY_TRANSPORT = {
 const COUNTRY_OF_CITY = {
   "Tokyo":"Japan","Fukuoka":"Japan","Osaka":"Japan","Kyoto":"Japan","Hakone":"Japan","Ainoshima":"Japan",
   "Beijing":"China","Shanghai":"China","Hong Kong":"China",
-  "Rome":"Italy","Florence":"Italy","Venice":"Italy","Milan":"Italy",
-  "Paris":"France","London":"UK","Munich":"Germany","Prague":"Czechia",
+  "Rome":"Italy","Florence":"Italy","Venice":"Italy","Milan":"Italy","Naples":"Italy","Messina":"Italy","Santorini":"Greece","Mykonos":"Greece","Athens":"Greece",
+  "Paris":"France","London":"UK","Munich":"Germany","Prague":"Czechia","Barcelona":"Spain","Warsaw":"Poland","Krakow":"Poland",
   "Bali":"Indonesia","Bangkok":"Thailand","Singapore":"Singapore","Seoul":"South Korea",
-  "Sydney":"Australia","Barcelona":"Spain","Warsaw":"Poland","Krakow":"Poland"
+  "Sydney":"Australia"
 };
 
 /**
@@ -501,7 +566,7 @@ function getTransportBetween(from, to) {
   // Last resort — generic guess based on distance heuristic
   // Cities in same broad region? Train. Otherwise flight.
   const sameRegion = {
-    "Europe": ["Paris","London","Rome","Florence","Venice","Milan","Barcelona","Warsaw","Krakow","Munich","Prague"],
+    "Europe": ["Paris","London","Rome","Florence","Venice","Milan","Barcelona","Warsaw","Krakow","Munich","Prague","Naples","Messina","Santorini","Mykonos","Athens"],
     "SE Asia": ["Bali","Bangkok","Singapore","Hong Kong"],
   };
 
