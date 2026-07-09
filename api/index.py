@@ -137,6 +137,20 @@ Generate the full itinerary JSON now."""
         return jsonify({"error": f"Generation failed: {str(e)}"}), 500
 
 
+@app.route("/")
+def serve_frontend():
+    import pathlib
+    html_path = pathlib.Path(__file__).resolve().parent.parent / "frontend" / "index.html"
+    if html_path.exists():
+        return html_path.read_text(encoding="utf-8")
+    return "Frontend not found — open frontend/index.html manually", 404
+
 @app.route("/api/health", methods=["GET"])
 def health():
     return jsonify({"status": "ok", "model": MODEL})
+
+
+if __name__ == "__main__":
+    import sys
+    port = int(sys.argv[1]) if len(sys.argv) > 1 else 5000
+    app.run(host="0.0.0.0", port=port, debug=True)
