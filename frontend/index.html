@@ -380,6 +380,30 @@ const CURATED = {
     places: "Federation Square • Southbank • St Kilda Beach • Brighton Beach (colorful boxes) • Carlton (Lygon St) • Collingwood (smith St) • Fitzroy (Brunswick St)",
     accommodation: "Hotel in CBD, Southbank, or trendy suburbs like Fitzroy or St Kilda",
     tips: ["Melbourne's weather changes rapidly — always carry a compact umbrella and layers.", "Free tram zone covers CBD and Docklands — hop on and off for easy sightseeing.", "Coffee is serious business — try the specialty cafes in laneways.", "Book MCG tour in advance if you're a sports fan.", "Queen Victoria Market is open Tues, Thu, Sat, Sun — go early for best produce."]
+  },
+  "Munich": {
+    activities: "Marienplatz • Frauenkirche • English Garden • BMW Museum • Nymphenburg Palace • Viktualienmarkt • Hofbräuhaus",
+    food: "Weißwurst • Schweinshaxe • Pretzel • Beer (Augustiner, Hofbräu) • Schweinshaxe • Obatzda • Radler",
+    places: "Marienplatz • Frauenkirche • English Garden • Viktualienmarkt • Nymphenburg Palace • Hofbräuhaus • BMW Museum • Olympiapark",
+    accommodation: "Hotel in Altstadt or near Hauptbahnhof",
+    tips: [
+      "Get a Munich Card for public transport + museum discounts",
+      "Reserve a table at Hofbräuhaus early evening",
+      "Visit the English Garden early morning for a peaceful walk",
+      "Try the Weißwurst before noon – it's a traditional morning sausage"
+    ]
+  },
+  "Prague": {
+    activities: "Prague Castle • Charles Bridge • Old Town Square & Astronomical Clock • Jewish Quarter • Petřín Hill • Wenceslas Square • Dancing House",
+    food: "Goulash (guláš) • Svíčková (marinated beef) • Trdelník • Pilsner lager • Fried cheese (smažený sýr)",
+    places: "Prague Castle • Charles Bridge • Old Town Square • Jewish Quarter • Wenceslas Square",
+    accommodation: "Hotel in Old Town (Staré Město) or Lesser Town (Malá Strana)",
+    tips: [
+      "Buy a 3‑day public transport pass for unlimited tram, metro, bus",
+      "The Astronomical Clock show is on the hour – arrive a few minutes early",
+      "Many restaurants offer a 'menu of the day' (polední menu) for great value",
+      "Watch out for taxi overcharging – use AAA or Uber instead"
+    ]
   }
 };
 
@@ -447,7 +471,7 @@ const COUNTRY_OF_CITY = {
   "Tokyo":"Japan","Fukuoka":"Japan","Osaka":"Japan","Kyoto":"Japan","Hakone":"Japan","Ainoshima":"Japan",
   "Beijing":"China","Shanghai":"China","Hong Kong":"China",
   "Rome":"Italy","Florence":"Italy","Venice":"Italy","Milan":"Italy",
-  "Paris":"France","London":"UK",
+  "Paris":"France","London":"UK","Munich":"Germany","Prague":"Czechia",
   "Bali":"Indonesia","Bangkok":"Thailand","Singapore":"Singapore","Seoul":"South Korea",
   "Sydney":"Australia","Barcelona":"Spain","Warsaw":"Poland","Krakow":"Poland"
 };
@@ -477,7 +501,7 @@ function getTransportBetween(from, to) {
   // Last resort — generic guess based on distance heuristic
   // Cities in same broad region? Train. Otherwise flight.
   const sameRegion = {
-    "Europe": ["Paris","London","Rome","Florence","Venice","Milan","Barcelona","Warsaw","Krakow"],
+    "Europe": ["Paris","London","Rome","Florence","Venice","Milan","Barcelona","Warsaw","Krakow","Munich","Prague"],
     "SE Asia": ["Bali","Bangkok","Singapore","Hong Kong"],
   };
 
