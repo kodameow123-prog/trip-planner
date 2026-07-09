@@ -58,7 +58,8 @@ Rules:
 - Budget in USD for mid-range traveler
 - Each day MUST have unique activities — do not repeat
 - Name specific restaurants, dishes, neighborhoods, and attractions — NOT generic categories
-- Incorporate user interests into activity suggestions when relevant"""
+- Incorporate user interests into activity suggestions when relevant
+- PREFER GROUND TRANSPORT: For domestic travel in countries with excellent rail networks (Japan Shinkansen, Europe TGV/ICE, China high-speed rail), recommend trains over short-haul flights when rail is practical and cheaper/time-competitive."""
 
 
 @app.after_request

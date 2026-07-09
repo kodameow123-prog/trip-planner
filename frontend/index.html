@@ -445,12 +445,10 @@ function genericFallback(city) {
 
 const CITY_TRANSPORT = {
   // Japan
-  "Tokyo->Fukuoka": { mode: "Shinkansen Nozomi", duration: "~5h", notes: "Reserve via SmartEX app" },
-  "Tokyo->Osaka": { mode: "Shinkansen Nozomi", duration: "~2.5h", notes: "Frequent departures" },
-  "Tokyo->Hakone": { mode: "Shinkansen + Tozan Railway", duration: "~1.5h", notes: "To Odawara, then Tozan" },
-  "Fukuoka->Osaka": { mode: "Shinkansen Nozomi", duration: "~2.5h", notes: "Via Hiroshima" },
-  "Osaka->Tokyo": { mode: "Shinkansen Nozomi", duration: "~2.5h", notes: "Frequent departures" },
-  "Osaka->Hakone": { mode: "Shinkansen Nozomi", duration: "~2.5h", notes: "To Odawara" },
+  "Tokyo->Fukuoka": { mode: "Flight", duration: "~2h", notes: "~1000 km; Shinkansen is ~5h — flight often cheaper/faster for this distance" },
+  "Fukuoka->Osaka": { mode: "Flight", duration: "~1.5h", notes: "~500 km; Shinkansen ~3h or flight ~1.5h depending on bookings" },
+  "Tokyo->Osaka": { mode: "Shinkansen", duration: "~3h", notes: "Nozomi/Kodama — reserve via app 🚄" },
+  "Osaka->Tokyo": { mode: "Shinkansen", duration: "~3h", notes: "Return leg 🚄" },
   "Osaka->Kyoto": { mode: "JR Special Rapid", duration: "~30min", notes: "Cheap & frequent" },
   "Hakone->Tokyo": { mode: "Shinkansen", duration: "~1.5h", notes: "From Odawara" },
   // China
@@ -834,6 +832,7 @@ function renderAIResult(data, tripTitle) {
   // Actions
   html += `<div class="iti-actions">
     <button class="btn btn-primary" onclick="downloadHTML()">💾 Download as HTML</button>
+    <button class="btn btn-secondary" onclick="downloadCSV()">📊 Download as CSV</button>
     <button class="btn btn-secondary" onclick="printItinerary()">🖨 Print / PDF</button>
   </div>
   <div class="iti-footer">Generated with 🧠 AI · ${esc(tripTitle)} · Times approximate — verify before travel<br>Safe travels! ✨</div>`;
@@ -979,6 +978,7 @@ function renderCurated(data) {
 
   html += `<div class="iti-actions">
     <button class="btn btn-primary" onclick="downloadHTML()">💾 Download as HTML</button>
+    <button class="btn btn-secondary" onclick="downloadCSV()">📊 Download as CSV</button>
     <button class="btn btn-secondary" onclick="printItinerary()">🖨 Print / PDF</button>
   </div>
   <div class="iti-footer">Curated database · ${esc(tripTitle)} · Times approximate — verify before travel<br>🧠 Safe travels! ✨</div>`;
@@ -991,6 +991,36 @@ function renderCurated(data) {
 }
 
 // ============================================================
+function downloadCSV() {
+  const days = document.querySelectorAll('.iti-day');
+  const title = (document.getElementById('tripTitle').value || 'trip').replace(/\s+/g, '-').toLowerCase();
+
+  let csv = 'Date,Day,Location,Activities,Food,Places,Transport\n';
+  days.forEach(dayEl => {
+    const date = dayEl.querySelector('.d')?.textContent || '';
+    const month = dayEl.querySelector('.mo')?.textContent || '';
+    const weekday = dayEl.querySelector('.wd')?.textContent || '';
+    const location = dayEl.querySelector('.city')?.textContent?.replace('TRAVEL','').trim() || '';
+    const labels = dayEl.querySelectorAll('label');
+    const values = dayEl.querySelectorAll('.detail-row > div');
+    const map = {};
+    values.forEach(v => {
+      const lbl = v.querySelector('label')?.textContent || '';
+      map[lbl] = v.textContent.replace(lbl,'').trim();
+    });
+    csv += `"${month} ${date}, ${weekday}","${location}","${(map['Activities']||map['🎯 Activities']||'').replace(/"/g,'""')}","${(map['Food']||map['🍽️ Food']||'').replace(/"/g,'""')}","${(map['Places']||map['📍 Places']||'').replace(/"/g,'""')}","${(map['Transport']||map['🚇 Transport']||'').replace(/"/g,'""')}"\n`;
+  });
+
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${title}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('📥 CSV downloaded!', true);
+}
+
 function downloadHTML() {
   const output = document.getElementById('output');
   const title = (document.getElementById('tripTitle').value || 'trip').replace(/\s+/g, '-').toLowerCase();
