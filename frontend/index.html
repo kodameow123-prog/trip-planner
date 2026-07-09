@@ -185,6 +185,7 @@
     <div id="destsContainer"></div>
     <div class="actions">
       <button class="btn btn-secondary" onclick="addDest()">+ Add Destination</button>
+      <button class="btn btn-ghost" onclick="loadMedCruisePreset()">Load Example (Mediterranean Cruise)</button>
       <button class="btn btn-ghost" onclick="loadPreset()">Load Example (Japan)</button>
     </div>
   </div>
@@ -611,6 +612,21 @@ function loadPreset() {
   addDest("Osaka", "2026-11-18", "2026-11-21");
   addDest("Hakone", "2026-11-21", "2026-11-23");
   addDest("Tokyo", "2026-11-23", "2026-11-27");
+}
+
+function loadMedCruisePreset() {
+  document.getElementById('destsContainer').innerHTML = '';
+  destCounter = 0;
+  // Pre-cruise days in Rome
+  addDest("Rome", "2026-09-19", "2026-09-21");
+  // Cruise stops with longer stays
+  addDest("Naples", "2026-09-21", "2026-09-22");
+  addDest("Messina", "2026-09-22", "2026-09-23");
+  addDest("Santorini", "2026-09-23", "2026-09-24");
+  addDest("Mykonos", "2026-09-24", "2026-09-25");
+  addDest("Athens", "2026-09-25", "2026-09-27");
+  // Post-cruise wrap-up back in Rome
+  addDest("Rome", "2026-09-27", "2026-09-29");
 }
 
 function validate() {
