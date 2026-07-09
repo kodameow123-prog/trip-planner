@@ -537,23 +537,20 @@ const tryAI = async () => {
     const resp = await fetch('/api/health');
     if (resp.ok) {
       aiAvailable = true;
-      modeBadge.innerHTML = '📖 Curated database mode <small>(AI available)</small>';
-      modeBadge.className = 'header-badge badge-local';
-      if (aiToggle) aiToggle.style.display = '';
+      useAI = true;
+      modeBadge.innerHTML = '🧠 AI-Powered mode (OpenRouter)';
+      modeBadge.className = 'header-badge badge-ai';
+      if (aiToggle) { aiToggle.style.display = ''; aiToggle.innerHTML = '📖 Switch to Curated'; }
       return true;
     }
   } catch (e) {}
   aiAvailable = false;
+  useAI = false;
   modeBadge.innerHTML = '📖 Curated database mode (offline)';
   modeBadge.className = 'header-badge badge-local';
   if (aiToggle) aiToggle.style.display = 'none';
   return false;
 };
-
-document.addEventListener('DOMContentLoaded', async () => {
-  await tryAI();
-  loadPreset();
-});
 
 function toggleAI() {
   if (!aiAvailable) return;
@@ -568,6 +565,11 @@ function toggleAI() {
     aiToggle.innerHTML = '🧠 Use AI';
   }
 }
+
+document.addEventListener('DOMContentLoaded', async () => {
+  await tryAI();
+  loadPreset();
+});
 
 function getCityData(city) {
   if (CURATED[city]) return CURATED[city];
@@ -784,10 +786,10 @@ function renderAIResult(data, tripTitle) {
       <div class="body">
         <div class="city">${esc(day.location)}${day.isTravel ? ' <span class="tag">TRAVEL</span>' : ''}</div>
         <div class="detail-row">
-          ${day.activities ? `<div><label>Activities</label>${esc(day.activities)}</div>` : ''}
-          ${day.food ? `<div><label>Food</label>${esc(day.food)}</div>` : ''}
-          ${day.places ? `<div><label>Places</label>${esc(day.places)}</div>` : ''}
-          ${day.transport ? `<div><label>Transport</label>${esc(day.transport)}</div>` : ''}
+          ${day.activities ? `<div><label>🎯 Activities</label>${esc(day.activities)}</div>` : ''}
+          ${day.food ? `<div><label>🍽️ Food</label>${esc(day.food)}</div>` : ''}
+          ${day.places ? `<div><label>📍 Places</label>${esc(day.places)}</div>` : ''}
+          ${day.transport ? `<div><label>🚇 Transport</label>${esc(day.transport)}</div>` : ''}
         </div>
       </div>
     </div>`;

@@ -18,6 +18,8 @@ CRITICAL: Your recommendations MUST be specific and actionable. Do NOT use vague
 - Include realistic timing (morning / afternoon / evening)
 - Incorporate the user's stated interests when suggesting activities
 
+EMOJIS: Sprinkle relevant emojis naturally throughout the text fields to make the itinerary visually engaging. Use travel/city/food emojis at the start of sentences or key items (e.g., 🗼 for landmarks, 🍜 for food, 🏛 for museums, 🌃 for nightlife, 🛍 for shopping, 🚄 for transport). Keep it tasteful — not every word needs an emoji, just the highlights.
+
 Output ONLY valid JSON matching this schema:
 {
   "tripTitle": "string",
@@ -28,21 +30,24 @@ Output ONLY valid JSON matching this schema:
       "date": "YYYY-MM-DD",
       "location": "City/Area name",
       "isTravel": false,
-      "activities": "Specific timed activities (e.g. '9am: Sagrada Familia • Noon: La Boqueria • 3pm: Gothic Quarter walk')",
-      "food": "Specific dishes + where (e.g. 'Paella at 7 Portes • Patatas bravas at Bar Canete')",
-      "places": "Specific attraction names and districts",
-      "transport": "Local transport advice"
+      "activities": "Specific timed activities (e.g. '9am: Sagrada Familia 🏛 • Noon: La Boqueria 🍴 • 3pm: Gothic Quarter walk')",
+      "food": "Specific dishes + where (e.g. 'Paella at 7 Portes 🥘 • Patatas bravas at Bar Canete 🌶')",
+      "places": "Specific attraction names and districts 🗺️",
+      "transport": "Local transport advice 🚇"
     }
   ],
   "transports": [
-    {"from": "Origin city", "to": "Dest city", "mode": "Flight/Train", "duration": "~Xh", "notes": "Specific booking tip"}
+    {"from": "Origin city", "to": "Dest city", "mode": "Flight/Train", "duration": "~Xh", "notes": "Specific booking tip ✈️"}
   ],
-  "tips": ["Practical tip for the destination (max 10, be specific)"],
-  "packingList": ["Items specific to this destination's climate"],
+  "tips": ["Practical tip for the destination (max 10, be specific, add relevant emoji)"],
+  "packingList": ["Items specific to this destination's climate 🧳"],
   "budgetEstimate": {
-    "accommodation": "$X-Y/night", "transport": "$X-Y total",
-    "food": "$X-Y/day", "activities": "$X-Y total",
-    "total": "$X-Y", "currency": "USD"
+    "accommodation": "$X-Y/night",
+    "transport": "$X-Y total",
+    "food": "$X-Y/day",
+    "activities": "$X-Y total",
+    "total": "$X-Y",
+    "currency": "USD"
   }
 }
 
