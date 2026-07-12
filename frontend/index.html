@@ -186,6 +186,7 @@
     <div class="actions">
       <button class="btn btn-secondary" onclick="addDest()">+ Add Destination</button>
       <button class="btn btn-ghost" onclick="loadMedCruisePreset()">Load Example (Mediterranean Cruise)</button>
+      <button class="btn btn-ghost" onclick="loadIguazuPreset()">Load Example (Iguazu Falls & Rio)</button>
       <button class="btn btn-ghost" onclick="loadPreset()">Load Example (Japan)</button>
     </div>
   </div>
@@ -465,6 +466,56 @@ const CURATED = {
       "Plaka is touristy but charming — explore side streets",
       "Ferry to islands runs from Piraeus, 1–1.5hr from Athens centre"
     ]
+  },
+  "Buenos Aires": {
+    activities: "Recoleta Cemetery • La Boca & Caminito • San Telmo • Puerto Madero • Teatro Colón • Palermo Soho",
+    food: "Asado • Empanadas • Milanesa • Choripán • Malbec wine • Helado (ice cream) • Facturas",
+    places: "Recoleta • La Boca • San Telmo • Palermo • Puerto Madero • Microcentro",
+    accommodation: "Hotel in Palermo, Recoleta, or San Telmo",
+    tips: [
+      "Recoleta Cemetery is free and fascinating — Eva Perón's tomb",
+      "San Telmo antique market on Sundays is world-class",
+      "Asado dinner is essential — book parrilla in advance",
+      "La Boca is touristy but photogenic; explore carefully after dark",
+      "Download offline Spanish phrases; English is limited in neighborhoods"
+    ]
+  },
+  "Puerto Iguazú": {
+    activities: "Iguazu Falls Argentina side (Lower/Upper Circuit + Devil's Throat) • Macuco boat ride • Triple Frontier landmark",
+    food: "Asado argentino • Empanadas salteñas • Yerba mate • Local craft beer • Churros con dulce de leche",
+    places: "Parque Nacional Iguazú • Triple Frontier • Puerto Macuco • Lago Argentino",
+    accommodation: "Hotel near Puerto Iguazú town or park entrance",
+    tips: [
+      "Argentina side is larger — spend full day here with waterproof jacket",
+      "Devil's Throat (Garganta del Diablo) go early before crowds",
+      "Macuco boat ride gets you underneath falls — bring extra clothes",
+      "Brazil side is separate half-day trip; both passport and visas may be needed"
+    ]
+  },
+  "Foz do Iguaçu": {
+    activities: "Iguazu Falls Brazil side panoramic walk • Itaipu Dam tour • Parque das Aves bird sanctuary • Triple Frontier landmark",
+    food: "Brazilian churrasco • Pão de queijo • Caipirinha • Feijoada • Coxinha • Açaí bowls",
+    places: "Parque Nacional do Iguaçu • Itaipu Binacional • Parque das Aves • Triple Frontier",
+    accommodation: "Hotel in Foz centro near the border",
+    tips: [
+      "Brazil side gives the iconic panoramic view — still spectacular in ~2–3 hours",
+      "Parque das Aves is worth the extra visit if you like birds/nature",
+      "Border crossing to Argentina usually takes 30–60min by taxi/bus",
+      "Itaipu Dam tour requires passport and advance booking"
+    ]
+  },
+  "Rio de Janeiro": {
+    activities: "Christ the Redeemer • Sugarloaf Mountain • Copacabana/Ipanema beaches • Tijuca Forest hike • Selarón Steps • Santa Teresa tram",
+    food: "Feijoada • Pão de queijo • Caipirinha • Brazilian BBQ (churrasco) • Açaí • Coxinha",
+    places: "Copacabana • Ipanema • Leblon • Santa Teresa • Lapa • Barra da Tijuca",
+    accommodation: "Hotel in Ipanema, Leblon, or Copacabana",
+    tips: [
+      "Christ the Redeemer at sunrise = best photos and fewer crowds",
+      "Sugarloaf sunset combo with Urca hill trail is perfect afternoon",
+      "Uber works well in Rio; avoid unknown taxis",
+      "Copacabana/Ipanema beaches are beautiful but watch belongings",
+      "Lapa arches on weekends are iconic street scene"
+    ]
   }
 };
 
@@ -525,6 +576,11 @@ const CITY_TRANSPORT = {
   "Messina->Santorini": { mode: "Ferry/Flight", duration: "~3–5h total", notes: "Ferry via Athens or direct summer flights" },
   "Santorini->Mykonos": { mode: "Ferry", duration: "~2h", notes: "High-speed ferry frequent in summer ✨" },
   "Mykonos->Athens": { mode: "Flight/Ferry", duration: "~1h flight / ~3h ferry", notes: "Flight easiest from JMK→ATH" },
+  // South America
+  "Buenos Aires->Puerto Iguazú": { mode: "Flight", duration: "~1h45m", notes: "Fly from AEP or EZE to IGR — cheapest in advance" },
+  "Puerto Iguazú->Foz do Iguaçu": { mode: "Taxi/Bus over border", duration: "~25–40min", notes: "Bring passport; Brazilian visa may be required for some nationalities" },
+  "Foz do Iguaçu->Rio de Janeiro": { mode: "Flight", duration: "~2h", notes: "Fly GIG or SDU; Azul/LATAM/Gol frequent" },
+  "Rio de Janeiro->Buenos Aires": { mode: "Flight", duration: "~2.5h", notes: "GIG/EZE route: LATAM/Aerolineas" },
   // Europe cross-border
   "Paris->London": { mode: "Eurostar", duration: "~2.5h", notes: "City center to city center" },
   "London->Paris": { mode: "Eurostar", duration: "~2.5h", notes: "From St Pancras" },
@@ -538,7 +594,7 @@ const COUNTRY_OF_CITY = {
   "Rome":"Italy","Florence":"Italy","Venice":"Italy","Milan":"Italy","Naples":"Italy","Messina":"Italy","Santorini":"Greece","Mykonos":"Greece","Athens":"Greece",
   "Paris":"France","London":"UK","Munich":"Germany","Prague":"Czechia","Barcelona":"Spain","Warsaw":"Poland","Krakow":"Poland",
   "Bali":"Indonesia","Bangkok":"Thailand","Singapore":"Singapore","Seoul":"South Korea",
-  "Sydney":"Australia"
+  "Sydney":"Australia","Buenos Aires":"Argentina","Puerto Iguazú":"Argentina","Foz do Iguaçu":"Brazil","Rio de Janeiro":"Brazil"
 };
 
 /**
@@ -568,6 +624,7 @@ function getTransportBetween(from, to) {
   const sameRegion = {
     "Europe": ["Paris","London","Rome","Florence","Venice","Milan","Barcelona","Warsaw","Krakow","Munich","Prague","Naples","Messina","Santorini","Mykonos","Athens"],
     "SE Asia": ["Bali","Bangkok","Singapore","Hong Kong"],
+    "South America": ["Buenos Aires","Puerto Iguazú","Foz do Iguaçu","Rio de Janeiro"]
   };
 
   for (const [, cities] of Object.entries(sameRegion)) {
@@ -677,6 +734,16 @@ function loadPreset() {
   addDest("Osaka", "2026-11-18", "2026-11-21");
   addDest("Hakone", "2026-11-21", "2026-11-23");
   addDest("Tokyo", "2026-11-23", "2026-11-27");
+}
+
+function loadIguazuPreset() {
+  document.getElementById('destsContainer').innerHTML = '';
+  destCounter = 0;
+  addDest("Buenos Aires", "2026-11-14", "2026-11-16");
+  addDest("Puerto Iguazú", "2026-11-16", "2026-11-19");
+  addDest("Foz do Iguaçu", "2026-11-19", "2026-11-21");
+  addDest("Rio de Janeiro", "2026-11-21", "2026-11-25");
+  addDest("Buenos Aires", "2026-11-25", "2026-11-27");
 }
 
 function loadMedCruisePreset() {
